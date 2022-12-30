@@ -37,6 +37,7 @@ public class GameWindow extends JFrame implements ActionListener {
         this.colorOfBoard = Color.decode("#35654d");
         this.isDrawingFromStock = false; // starting value, means nothing yet
         this.player = new Player(false);
+        this.computer = new Player(true);
         
         this.generatePlayerComponents();
         this.generateOtherComponents();
@@ -107,11 +108,10 @@ public class GameWindow extends JFrame implements ActionListener {
     private void generateOtherComponents() {
 
         // create the status message
-        this.statusMessage = new JLabel(player.cardsOnHand[0] + " " + player.cardsOnHand[1] + " " + player.cardsOnHand[2]);
+        this.statusMessage = new JLabel("Your sum is: " + this.player.getSumOfCards());
 
         // create the image labels for the cards of the computer, because its cards should be hidden from the player
         // the cards will only be displayed as the from the back, till someone knocks
-        this.computer = new Player(true);
         this.computerCardLabels = new JLabel[3];
         ImageIcon[] backOfCardImageList = {this.backOfCardImage, this.backOfCardImage, this.backOfCardImage};
         this.generatImageLabels(this.computerCardLabels, backOfCardImageList);
@@ -241,7 +241,6 @@ public class GameWindow extends JFrame implements ActionListener {
         else if (event.getSource() == this.discardPileButton) {
 
             this.isDrawingFromStock = false;
-            System.out.println("Hello");
             this.hideLabelsAndShowButtons();
         }
         else {

@@ -30,7 +30,7 @@
  *     to write this.[method name] instead of [method name]. 
  *
  * ----
- * Author: @qpeano
+ * Author: Shamiur Rahman Ramim
  */
 
 import java.util.Random;
@@ -53,7 +53,6 @@ public class Board {
         this.getAllCardImages(); // (2)
         this.generateStockPile();
         this.shufflePile(this.stockPile);
-
         this.discardPile = new String[52];
         this.numberOfDiscardedCards = 0;
     }
@@ -192,22 +191,24 @@ public class Board {
 
     // Method is used when user wants to draw a new card from stock pile
     public String drawFromStock(String card) {
-
+    	
+    	//System.out.println(this.numberOfDiscardedCards);
         this.discardPile[this.numberOfDiscardedCards++] = card; // adds the discarded card to the discard pile
         String newCard = this.stockPile[this.stockPile.length - 1]; // gets the card from the top of the stock pile
 
         // makes new stock pile without the top card
         String[] newStockPile = Arrays.copyOf(this.stockPile, this.stockPile.length - 1);
         this.stockPile = newStockPile;
-
+        // this.numberOfDiscardedCards++; <- incrementation doesn't work???
+        
         return newCard;
     }
-
+    
     // Method is used when user wants to draw a new card from discard pile
     public String drawFromDiscard(String card) {
-
-        String newCard = this.discardPile[this.numberOfDiscardedCards]; // get the top card of discard pile
-        this.discardPile[this.numberOfDiscardedCards] = card; // over write top card with argument
+    	
+        String newCard = this.discardPile[this.numberOfDiscardedCards - 1]; // get the top card of discard pile
+        this.discardPile[this.numberOfDiscardedCards - 1] = card; // over write top card with argument
         return newCard;
     }
 
@@ -264,7 +265,7 @@ public class Board {
 
         if (!this.isDiscardPileEmpty()) {
 
-            return this.discardPile[this.numberOfDiscardedCards];
+            return this.discardPile[this.numberOfDiscardedCards - 1];
         }
         else {
 

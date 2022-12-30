@@ -27,7 +27,7 @@
  *     this.[variable name].
  * (3) declaring methods as privates prevents them from being called outside this class
  * (4) this.[method name] is in the same as doing this.[variable name], I prefer
- *     to wrtie this.[method name] instead of [method name]. 
+ *     to write this.[method name] instead of [method name]. 
  *
  * ----
  * Author: @qpeano
@@ -66,8 +66,8 @@ public class Board {
         this.cardImages = new ImageIcon[52];
         this.addClubs(0);
         this.addDiamonds(13);
-        this.addHearts(25);
-        this.addSpades(38);
+        this.addHearts(26);
+        this.addSpades(39);
     }
 
     // Method adds all cards that are clubs to this.cardImages
@@ -127,7 +127,7 @@ public class Board {
     // Method adds all cards that are spades to this.cardImages
 	private void addSpades(int startIndex) {
 
-		this.cardImages[startIndex++] = new ImageIcon("ace_of_spades.png");
+		this.cardImages[startIndex++] = new ImageIcon("ace_of_spades2.png");
 		this.cardImages[startIndex++] = new ImageIcon("2_of_spades.png");
 		this.cardImages[startIndex++] = new ImageIcon("3_of_spades.png");
 		this.cardImages[startIndex++] = new ImageIcon("4_of_spades.png");
@@ -146,51 +146,45 @@ public class Board {
     private void generateStockPile() {
 
         this.stockPile = new String[52];
-        int selectedSuit = 0; // the integer that tells the suit of a card
 
         // loop goes through and fills the empty stock pile with string representations of cards
-        for (int cardPlacement = 0; cardPlacement < 52; cardPlacement++) {
-
-            int cardCount = cardPlacement % 13; // tells the count of a card (value if you were to look through a sorted deck)
-            if (cardCount == 0 && cardPlacement != 0) { // changes suit when count is 13, which is when you've looked through a whole suit
-
-                selectedSuit++;
-            }
-
-            String card = ""; // string representation of card
-            if (cardCount < 10) { // formats the string correctly so that retrieving the count will be problem-free
-
-                card = selectedSuit + "0";
-            }
-
-            card += (cardCount + 1); // 1 is added so that the cardCount is within the integer range of [1, 13]
-            this.stockPile[cardPlacement] = card;
+        for (int suit = 0; suit < 4; suit++) {
+        	
+        	for (int cardCount = 0; cardCount < 13; cardCount++) {
+        		
+        		int cardIndex = suit * 13 + cardCount;
+        		this.stockPile[cardIndex] = suit + "";
+        		if (cardCount < 9) {
+        			
+        			this.stockPile[cardIndex] += "0";
+        		}
+        		
+        		this.stockPile[cardIndex] += (cardCount + 1);
+        	}
         }
     }
 
-    // shuffles a card pile (stolen: https://stackoverflow.com/questions/1519736/random-shuffling-of-an-array)
+    // shuffles a card pile (stolen: https://www.digitalocean.com/community/tutorials/shuffle-array-java)
     private void shufflePile(String[] pile) {
 
-        int indexOfCard = 0;
         String temporaryCardHolder = null;
         Random random = new Random();
-
-        for (int i = pile.length - 1; i > 1; i--) {
-
-            indexOfCard = random.nextInt(i + 1);
-            temporaryCardHolder = pile[indexOfCard];
-            pile[indexOfCard] = pile[i];
-            pile[i] = temporaryCardHolder;
-        }
+        
+		for (int i = 0; i < pile.length; i++) {
+			int randomIndexToSwap = random.nextInt(pile.length);
+			temporaryCardHolder = pile[randomIndexToSwap];
+			pile[randomIndexToSwap] = pile[i];
+			pile[i] = temporaryCardHolder;
+		}
     }
 
     // Method is used to get the index of a card, index is used to get the card's icon
     private int getIndexOf(String card) {
 
-		int suit = Integer.parseInt(card.substring(0, 1)); // gets the suit of the card
-		int cardCount = Integer.parseInt(card.substring(1)); // gets the card count of the card
-		int index = suit * 13 + (cardCount - 1); // is count - 1 because the index has to be less that 52.
-
+    	char[] characters = card.toCharArray();
+    	int suit = Character.getNumericValue(characters[0]);
+    	int cardCount = Character.getNumericValue(characters[1]) * 10  + Character.getNumericValue(characters[2]);
+    	int index = suit * 13 + (cardCount - 1);
 		return index;
     }
 

@@ -1,10 +1,5 @@
 /* Class is used to simulate a player in the game "31".
- * 
- * CLARIFICATION:
- * 
- * (1) declaring board as static means that it is shared by EVERY Player 
- * 	   object that is created. Referring to the board field now also has a different notation.
- * ----
+ *
  * Author: @qpeano
  */
 
@@ -14,8 +9,8 @@ public class Player {
 
     /* Fields */
 
-    private static Board board; // the board with the decks (1)
-    private String[] cardsOnHand; // the cards on hand
+    private static Board board; // the board with the decks
+    public String[] cardsOnHand; // the cards on hand
     private boolean isComputer; // tells if a player is computer or not;
     private double sumOfAllCardValues; // self-explanatory
 
@@ -84,7 +79,7 @@ public class Player {
 
         int leastIndex = 0;
         for (int i = 0; i < this.cardsOnHand.length; i++) {
-        	
+
         	double valueOfCard = Player.board.getValueOf(this.cardsOnHand[i]);
         	double valueOfLeastCard = Player.board.getValueOf(this.cardsOnHand[leastIndex]);
             if (valueOfCard < valueOfLeastCard) {
@@ -101,7 +96,7 @@ public class Player {
 
         int mostIndex = 0;
         for (int i = 0; i < this.cardsOnHand.length; i++) {
-        	
+
         	double valueOfCard = Player.board.getValueOf(this.cardsOnHand[i]);
         	double valueOfMostCard = Player.board.getValueOf(this.cardsOnHand[mostIndex]);
             if (valueOfCard > valueOfMostCard) {
@@ -113,13 +108,16 @@ public class Player {
         return mostIndex;
     }
 
-    /* User Interface */
+    /* USER INTERFACE */
 
     // Method is used when player wants to exchange a card with a new card from stock pile
     public void drawCardFromStock(int indexOfCard) {
 
         String newCard = Player.board.drawFromStock(this.cardsOnHand[indexOfCard]);
         this.cardsOnHand[indexOfCard] = newCard;
+
+        // calculates new sum
+        this.sumOfAllCardValues = this.calculateCardSum(this.cardsOnHand);
     }
 
     // Method is used when player wants to exchange a card with a new card from discard pile
@@ -127,6 +125,9 @@ public class Player {
 
         String newCard = Player.board.drawFromDiscard(this.cardsOnHand[indexOfCard]);
         this.cardsOnHand[indexOfCard] = newCard;
+
+        // calculates new sum
+        this.sumOfAllCardValues = this.calculateCardSum(this.cardsOnHand);
     }
 
     // Method is used to get the icon of a card with specified index
@@ -137,11 +138,12 @@ public class Player {
     }
 
     // Method is only used by computer
-    public void makeMove() {
+    public ImageIcon makeMove() {
 
-        if (!this.isComputer) { // returns (does nothing) if instance isn't a computer
+        int indexOfDiscardedCard = 0;
+        if (!this.isComputer) { // returns null and does nothing if instance isn't a computer
 
-            return;
+            return null;
         }
 
         if (this.sumOfAllCardValues <= 26) { // if sum of cards is less than or equal to 26, computer discards least card
@@ -155,6 +157,8 @@ public class Player {
 
                 this.drawCardFromStock(indexOfLeastCard);
             }
+
+            indexOfDiscardedCard = indexOfLeastCard;
         }
         else if (this.sumOfAllCardValues >= 32) { // if sum of cards is greater than or equal to 32, computer discards most card
 
@@ -167,7 +171,15 @@ public class Player {
 
                 this.drawCardFromStock(indexOfMostCard);
             }
+
+            indexOfDiscardedCard = indexOfMostCard;
         }
+
+        // calculates new sum
+        this.sumOfAllCardValues = this.calculateCardSum(this.cardsOnHand);
+
+        ImageIcon imageOfDiscardedCard = Player.board.getIconOf(this.cardsOnHand[indexOfDiscardedCard]);
+        return imageOfDiscardedCard;
     }
 
     // Method should ONLY  be used by computer, tells computer if it should make a move or not

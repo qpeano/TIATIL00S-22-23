@@ -30,7 +30,7 @@
  *     to wrtie this.[method name] instead of [method name]. 
  *
  * ----
- * Author: Shamiur Rahman Ramim
+ * Author: @qpeano
  */
 
 import java.util.Random;

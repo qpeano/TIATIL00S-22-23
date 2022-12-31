@@ -211,6 +211,8 @@ public class GameWindow extends JFrame implements ActionListener {
         else { // if they didn't
 
             this.player.drawCardFromDiscard(indexOfDiscardedCard);
+            
+            this.player.getImageIconOf(indexOfDiscardedCard).getDescription();
         }
 
         this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
@@ -245,6 +247,9 @@ public class GameWindow extends JFrame implements ActionListener {
         if (!(this.computer.getSumOfCards() > 26 && this.computer.getSumOfCards() < 32)) {
 
             ImageIcon imageOfDiscardedCard = this.computer.makeMove(); // the image of the discarded card
+            
+            
+            System.out.println(imageOfDiscardedCard.getDescription());
             this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
         }
         else {
@@ -276,15 +281,15 @@ public class GameWindow extends JFrame implements ActionListener {
 
     	if (playerSum < computerSum) {
 
-    		this.statusMessage.setText("Computer wins round");
+    		this.statusMessage.setText("Computer wins this round");
     	}
     	else if (playerSum > computerSum) {
 
-    		this.statusMessage.setText("You win round");
+    		this.statusMessage.setText("You win this round");
     	}
     	else {
 
-    		this.statusMessage.setText("404 no winner found");
+    		this.statusMessage.setText("404 no winner found for this round");
     	}
     }
 

@@ -183,7 +183,7 @@ public class Board {
     	char[] characters = card.toCharArray();
     	int suit = Character.getNumericValue(characters[0]);
     	int cardCount = Character.getNumericValue(characters[1]) * 10  + Character.getNumericValue(characters[2]);
-    	int index = suit * 13 + (cardCount - 1);
+    	int index = suit * 13 + (cardCount - 1); 
 		return index;
     }
 

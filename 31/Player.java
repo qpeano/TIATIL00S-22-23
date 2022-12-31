@@ -10,7 +10,7 @@ public class Player {
     /* Fields */
 
     private static Board board; // the board with the decks
-    public String[] cardsOnHand; // the cards on hand //change!!!
+    private String[] cardsOnHand; // the cards on hand //change!!!
     private boolean isComputer; // tells if a player is computer or not;
     private double sumOfAllCardValues; // self-explanatory
 
@@ -48,32 +48,38 @@ public class Player {
     	}
     	
     	String topCardOfDiscard = Player.board.peekTopOfDiscard(); // takes a look of the top card of discard
+        // System.out.println(topCardOfDiscard);
         
-    	// code below checks if exchanging a certain card with the top card of discard will result in
-        // the computers card sum being in the integer range of (26, 32), which will let it knock next round.
-        String[] potentialCardsOnHand = new String[3];
-        for (int i = 0; i < potentialCardsOnHand.length; i++) {
+        if (topCardOfDiscard != null) {
+        	
+        	// code below checks if exchanging a certain card with the top card of discard will result in
+            // the computers card sum being in the integer range of (26, 32), which will let it knock next round.
+            String[] potentialCardsOnHand = new String[3];
+            for (int i = 0; i < potentialCardsOnHand.length; i++) {
 
-            if (i == indexOfCard) {
+                if (i == indexOfCard) {
 
-                potentialCardsOnHand[i] = topCardOfDiscard;
+                    potentialCardsOnHand[i] = topCardOfDiscard;
+                }
+                else {
+
+                    potentialCardsOnHand[i] = this.cardsOnHand[i];
+                }
+            }
+
+            double potentialSumOfCardvalues = this.calculateCardSum(potentialCardsOnHand);
+
+            if (potentialSumOfCardvalues > 26 && potentialSumOfCardvalues < 32) {
+
+                return true;
             }
             else {
 
-                potentialCardsOnHand[i] = this.cardsOnHand[i];
+                return false;
             }
         }
-
-        double potentialSumOfCardvalues = this.calculateCardSum(potentialCardsOnHand);
-
-        if (potentialSumOfCardvalues > 26 && potentialSumOfCardvalues < 32) {
-
-            return true;
-        }
-        else {
-
-            return false;
-        }
+        
+        return false;
     }
 
     // Method is used by computer to get the index of the card with the lowest card value that is on hand
@@ -126,8 +132,9 @@ public class Player {
     public void drawCardFromDiscard(int indexOfCard) {
 
         String newCard = Player.board.drawFromDiscard(this.cardsOnHand[indexOfCard]);
+        // System.out.println(this.cardsOnHand[indexOfCard]);
         this.cardsOnHand[indexOfCard] = newCard;
-
+        // System.out.println(newCard);
         // calculates new sum
         this.sumOfAllCardValues = this.calculateCardSum(this.cardsOnHand);
     }
@@ -142,7 +149,8 @@ public class Player {
     // Method is only used by computer
     public ImageIcon makeMove() {
 
-        int indexOfDiscardedCard = 0;
+        ImageIcon imageOfDiscardedCard = null;
+        
         if (!this.isComputer) { // returns null and does nothing if instance isn't a computer
 
             return null;
@@ -151,37 +159,35 @@ public class Player {
         if (this.sumOfAllCardValues <= 26) { // if sum of cards is less than or equal to 26, computer discards least card
 
             int indexOfLeastCard = this.getIndexOfLeastCard();
+            imageOfDiscardedCard = Player.board.getIconOf(this.cardsOnHand[indexOfLeastCard]);
+            
             if (this.isDrawingFromDiscard(indexOfLeastCard)) { // if adding top card from discard makes card sum in (26, 32)
-
+            	
                 this.drawCardFromDiscard(indexOfLeastCard);
             }
-            else { // if adding top card doesn't yeald a desirable sum OR if discard pile is empty
-
+            else { // if adding top card doesn't yield a desirable sum OR if discard pile is empty
+            	
                 this.drawCardFromStock(indexOfLeastCard);
             }
-
-            indexOfDiscardedCard = indexOfLeastCard;
         }
         else if (this.sumOfAllCardValues >= 32) { // if sum of cards is greater than or equal to 32, computer discards most card
 
             int indexOfMostCard = this.getIndexOfMostCard();
+            imageOfDiscardedCard = Player.board.getIconOf(this.cardsOnHand[indexOfMostCard]);
+            
             if (this.isDrawingFromDiscard(indexOfMostCard)) { // if adding top card from discard makes card sum in (26, 32)
 
                 this.drawCardFromDiscard(indexOfMostCard);
             }
-            else { // if adding top card doesn't yeald a desirable sum OR if discard pile is empty
+            else { // if adding top card doesn't yield a desirable sum OR if discard pile is empty
 
                 this.drawCardFromStock(indexOfMostCard);
             }
-
-            indexOfDiscardedCard = indexOfMostCard;
         }
 
         // calculates new sum
         this.sumOfAllCardValues = this.calculateCardSum(this.cardsOnHand);
-
-        ImageIcon imageOfDiscardedCard = Player.board.getIconOf(this.cardsOnHand[indexOfDiscardedCard]);
-        // System.out.println(imageOfDiscardedCard.getDescription());
+        
         return imageOfDiscardedCard;
     }
 

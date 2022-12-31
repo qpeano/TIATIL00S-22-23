@@ -10,7 +10,7 @@ public class Player {
     /* Fields */
 
     private static Board board; // the board with the decks
-    public String[] cardsOnHand; // the cards on hand
+    public String[] cardsOnHand; // the cards on hand //change!!!
     private boolean isComputer; // tells if a player is computer or not;
     private double sumOfAllCardValues; // self-explanatory
 
@@ -40,38 +40,40 @@ public class Player {
 
     // Method is used to determine if computer should exchange a card with the top card of discard pile or not
     private boolean isDrawingFromDiscard(int indexOfCard) {
+    		
+    	// if stock pile is empty, computer should always choose the discard pile 
+    	if (Player.board.isStockPileEmpty() && !Player.board.isDiscardPileEmpty()) {
+    		
+    		return true;
+    	}
+    	
+    	String topCardOfDiscard = Player.board.peekTopOfDiscard(); // takes a look of the top card of discard
+        
+    	// code below checks if exchanging a certain card with the top card of discard will result in
+        // the computers card sum being in the integer range of (26, 32), which will let it knock next round.
+        String[] potentialCardsOnHand = new String[3];
+        for (int i = 0; i < potentialCardsOnHand.length; i++) {
 
-        String topCardOfDiscard = Player.board.peekTopOfDiscard(); // takes a look of the top card of discard
-        if (topCardOfDiscard != null) { // checks if discard is empty
+            if (i == indexOfCard) {
 
-            // code below checks if exchanging a certain card with the top card of discard will result in
-            // the computers card sum being in the integer range of (26, 32), which will let it knock next round.
-            String[] potentialCardsOnHand = new String[3];
-            for (int i = 0; i < potentialCardsOnHand.length; i++) {
-
-                if (i == indexOfCard) {
-
-                    potentialCardsOnHand[i] = topCardOfDiscard;
-                }
-                else {
-
-                    potentialCardsOnHand[i] = this.cardsOnHand[i];
-                }
-            }
-
-            double potentialSumOfCardvalues = this.calculateCardSum(potentialCardsOnHand);
-
-            if (potentialSumOfCardvalues > 26 && potentialSumOfCardvalues < 32) {
-
-                return true;
+                potentialCardsOnHand[i] = topCardOfDiscard;
             }
             else {
 
-                return false;
+                potentialCardsOnHand[i] = this.cardsOnHand[i];
             }
         }
 
-        return false;
+        double potentialSumOfCardvalues = this.calculateCardSum(potentialCardsOnHand);
+
+        if (potentialSumOfCardvalues > 26 && potentialSumOfCardvalues < 32) {
+
+            return true;
+        }
+        else {
+
+            return false;
+        }
     }
 
     // Method is used by computer to get the index of the card with the lowest card value that is on hand
@@ -179,6 +181,7 @@ public class Player {
         this.sumOfAllCardValues = this.calculateCardSum(this.cardsOnHand);
 
         ImageIcon imageOfDiscardedCard = Player.board.getIconOf(this.cardsOnHand[indexOfDiscardedCard]);
+        // System.out.println(imageOfDiscardedCard.getDescription());
         return imageOfDiscardedCard;
     }
 
@@ -192,5 +195,11 @@ public class Player {
     public double getSumOfCards() {
 
         return this.sumOfAllCardValues;
+    }
+    
+    // Method is used to check if stock pile is empty
+    public boolean isStockPileEmpty() {
+    	
+    	return Player.board.isStockPileEmpty();
     }
 }

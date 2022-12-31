@@ -313,10 +313,13 @@ public class GameWindow extends JFrame implements ActionListener {
         }
         else if (event.getSource() == this.doneWithTurnButton) { // if player is done with their turn
 
-            this.initiateComputerMove(); // computer makes a move
+        	if (!this.isComputerKnocking ) { // if computer hasn't knocked
+        		
+                this.initiateComputerMove(); // computer makes a move
+        	}
 
-            // if player has thrown a turn (knocked) or if the computer has knocked
-            if (!this.hasExchangeOccurred || this.isComputerKnocking) {
+            // if player has thrown a turn (knocked)
+            if (!this.hasExchangeOccurred) {
 
                 this.displayCards();
                 this.declareWinner();

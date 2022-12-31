@@ -24,7 +24,7 @@ public class GameWindow extends JFrame implements ActionListener {
     private Color colorOfBoard; // the color the board
 
     private boolean isDrawingFromStock; // remembers which pile to draw a card from
-    private boolean hasKnocked;
+    private boolean isComputerKnocking; /// a signal for the round to end
 
     /* Constructor */
 
@@ -47,7 +47,7 @@ public class GameWindow extends JFrame implements ActionListener {
         this.isDrawingFromStock = false; // starting value, means nothing yet
         this.player = new Player(false);
         this.computer = new Player(true);
-        this.hasKnocked = false;
+        this.isComputerKnocking = false;
         
         this.generatePlayerComponents();
         this.generateOtherComponents();
@@ -88,7 +88,7 @@ public class GameWindow extends JFrame implements ActionListener {
     private void makeButtons() {
 
         // create and set up the buttons that are visible most of the time
-		this.knockButton = new JButton("knock");
+		this.knockButton = new JButton("knock/show");
 		this.knockButton.addActionListener(this);
 
 		this.stockPileButton = new JButton(this.backOfCardImage);
@@ -116,7 +116,7 @@ public class GameWindow extends JFrame implements ActionListener {
     private void generateOtherComponents() {
 
         // create the status message
-        this.statusMessage = new JLabel(this.player.cardsOnHand[0] + " " + this.player.cardsOnHand[1] + " " + this.player.cardsOnHand[2]);
+        this.statusMessage = new JLabel("Your sum is: " + this.player.getSumOfCards());
         // this.statusMessage = new JLabel("game has started");
         
         // create the image labels for the cards of the computer, because its cards should be hidden from the player
@@ -241,7 +241,7 @@ public class GameWindow extends JFrame implements ActionListener {
         else {
         	
         	this.statusMessage.setText("Computer is knocking, it's your turn");
-        	this.hasKnocked = true;
+        	this.isComputerKnocking = true;
         	
         }
     }
@@ -276,7 +276,7 @@ public class GameWindow extends JFrame implements ActionListener {
     		this.statusMessage.setText("404 no winner found");
     	}
     }
-
+    
     /* User Interface */
 
 	// method is used to simulate whatever happens when player has
@@ -296,7 +296,10 @@ public class GameWindow extends JFrame implements ActionListener {
         }
         else if (event.getSource() == this.knockButton) {
         	
-        	// do some 
+        	// this.statusMessage.setText("You are knocking, it is computer's turn");
+        	this.initiateComputerMove();
+        	this.displayCards();
+        	this.declareWinner();
         }
         else {
 
@@ -308,17 +311,16 @@ public class GameWindow extends JFrame implements ActionListener {
                     break;
                 }
             }
-           
-            this.initiateComputerMove();  
-        }
-        
-        if (this.hasKnocked) {
-        	
-        	this.displayCards();
-        	this.declareWinner();
-        	
-        	// getContentPane().removeAll();
-        	// this.setUpRound();
+            
+            if (!this.isComputerKnocking) {
+            	
+            	// this.initiateComputerMove();
+            }
+            else {
+            	
+            	// this.displayCards();
+            	// this.declareWinner();
+            }
         }
     }
 }

@@ -224,9 +224,13 @@ public class Board {
 
 		int value = Integer.parseInt(card.substring(1));
 
-		if (value > 10) {
+		if (value == 1) {
 
 			value = 11;
+		}
+		else if (value > 10) {
+			
+			value = 10;
 		}
 
 		return value;

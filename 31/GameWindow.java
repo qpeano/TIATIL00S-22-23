@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Random;
 
 public class GameWindow extends JFrame implements ActionListener {
 
@@ -23,6 +24,7 @@ public class GameWindow extends JFrame implements ActionListener {
     private Color colorOfBoard; // the color the board
 
     private boolean isDrawingFromStock; // remembers which pile to draw a card from
+    private boolean hasKnocked;
 
     /* Constructor */
 
@@ -35,16 +37,22 @@ public class GameWindow extends JFrame implements ActionListener {
 
         this.backOfCardImage = new ImageIcon("back_of_card.png");
         this.colorOfBoard = Color.decode("#35654d");
+        this.setUpRound();
+    }
+
+    /* Internal */
+    
+    private void setUpRound() {
+    	
         this.isDrawingFromStock = false; // starting value, means nothing yet
         this.player = new Player(false);
         this.computer = new Player(true);
+        this.hasKnocked = false;
         
         this.generatePlayerComponents();
         this.generateOtherComponents();
         this.addAllComponentsToView();
     }
-
-    /* Internal */
 
     // Method creates all things that the player will use in a game of 31
     private void generatePlayerComponents() {
@@ -108,8 +116,9 @@ public class GameWindow extends JFrame implements ActionListener {
     private void generateOtherComponents() {
 
         // create the status message
-        this.statusMessage = new JLabel("Your sum is: " + this.player.getSumOfCards());
-
+        this.statusMessage = new JLabel(this.player.cardsOnHand[0] + " " + this.player.cardsOnHand[1] + " " + this.player.cardsOnHand[2]);
+        // this.statusMessage = new JLabel("game has started");
+        
         // create the image labels for the cards of the computer, because its cards should be hidden from the player
         // the cards will only be displayed as the from the back, till someone knocks
         this.computerCardLabels = new JLabel[3];
@@ -211,19 +220,61 @@ public class GameWindow extends JFrame implements ActionListener {
         this.discardPileButton.addActionListener(this);
         this.discardPileButton.setBackground(this.colorOfBoard);
         getContentPane().removeAll();
+        
+        if (this.player.isStockPileEmpty() && this.stockPileButton.isVisible()) {
+        	
+        	this.stockPileButton.setVisible(false);
+        }
+        
         this.addAllComponentsToView();
     }
 
     private void initiateComputerMove() {
-
+    	
         if (!(this.computer.getSumOfCards() > 26 && this.computer.getSumOfCards() < 32)) {
-
+        	
             ImageIcon imageOfDiscardedCard = this.computer.makeMove();
             this.alterView(imageOfDiscardedCard);
+            // System.out.println(imageOfDiscardedCard.getDescription()); // displays players card :(
+            // System.out.println("hello");
         }
         else {
-
+        	
+        	this.statusMessage.setText("Computer is knocking, it's your turn");
+        	this.hasKnocked = true;
+        	
         }
+    }
+    
+    private void displayCards() {
+    	
+    	this.stockPileButton.setVisible(false);
+    	this.discardPileButton.setVisible(false);
+    	
+        ImageIcon[] imagesOfCardsOnHand = this.getOnHandCardImages(this.computer);
+        for (int i = 0; i < this.computerCardLabels.length; i++) {
+        	
+        	this.computerCardLabels[i].setIcon(imagesOfCardsOnHand[i]);
+        }
+    }
+    
+    private void declareWinner() {
+    	
+    	double playerSum = this.player.getSumOfCards();
+    	double computerSum = this.computer.getSumOfCards();
+    	
+    	if (playerSum < computerSum) {
+    		
+    		this.statusMessage.setText("Computer wins round");
+    	}
+    	else if (playerSum > computerSum) {
+    		
+    		this.statusMessage.setText("You win round");
+    	}
+    	else {
+    		
+    		this.statusMessage.setText("404 no winner found");
+    	}
     }
 
     /* User Interface */
@@ -243,6 +294,10 @@ public class GameWindow extends JFrame implements ActionListener {
             this.isDrawingFromStock = false;
             this.hideLabelsAndShowButtons();
         }
+        else if (event.getSource() == this.knockButton) {
+        	
+        	// do some 
+        }
         else {
 
             for (int indexOfDiscardedCard = 0; indexOfDiscardedCard < this.playerCardButtons.length; indexOfDiscardedCard++) {
@@ -254,7 +309,16 @@ public class GameWindow extends JFrame implements ActionListener {
                 }
             }
            
-            // this.initiateComputerMove();
+            this.initiateComputerMove();  
+        }
+        
+        if (this.hasKnocked) {
+        	
+        	this.displayCards();
+        	this.declareWinner();
+        	
+        	// getContentPane().removeAll();
+        	// this.setUpRound();
         }
     }
 }

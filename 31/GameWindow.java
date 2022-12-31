@@ -1,16 +1,15 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Random;
 
 public class GameWindow extends JFrame implements ActionListener {
 
     /* Fields */
 
-    private JButton knockButton; // button for when the player wants to knock
     private JButton stockPileButton; // button for when the player wants to draw card from stock pile
     private JButton discardPileButton; // button for when the player wants to draw card from discard pile
     private JButton[] playerCardButtons; // the buttons that are visible when the player chooses which card to discard
+    private JButton doneWithTurnButton; // turn goes to computer, used as knock button when no no exchange occurs
 
     private JLabel[] computerCardLabels; // the labels that display the cards of the computer
     private JLabel[] playerCardLabels; // the labels that display the cards of the player
@@ -24,7 +23,8 @@ public class GameWindow extends JFrame implements ActionListener {
     private Color colorOfBoard; // the color the board
 
     private boolean isDrawingFromStock; // remembers which pile to draw a card from
-    private boolean isComputerKnocking; /// a signal for the round to end
+    private boolean isComputerKnocking; // a signal for the round to end
+    private boolean hasExchangeOccurred; // used as a signal to determine if user knocks or not
 
     /* Constructor */
 
@@ -41,14 +41,16 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /* Internal */
-    
+
+    // Method sets upp the window and all objects that are needed for the round to start
     private void setUpRound() {
-    	
-        this.isDrawingFromStock = false; // starting value, means nothing yet
+
         this.player = new Player(false);
         this.computer = new Player(true);
+        this.isDrawingFromStock = false; // starting value, means nothing yet
+        this.hasExchangeOccurred = false;
         this.isComputerKnocking = false;
-        
+
         this.generatePlayerComponents();
         this.generateOtherComponents();
         this.addAllComponentsToView();
@@ -88,8 +90,8 @@ public class GameWindow extends JFrame implements ActionListener {
     private void makeButtons() {
 
         // create and set up the buttons that are visible most of the time
-		this.knockButton = new JButton("knock/show");
-		this.knockButton.addActionListener(this);
+		this.doneWithTurnButton = new JButton("done");
+		this.doneWithTurnButton.addActionListener(this);
 
 		this.stockPileButton = new JButton(this.backOfCardImage);
 		this.stockPileButton.setBackground(this.colorOfBoard);
@@ -117,8 +119,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // create the status message
         this.statusMessage = new JLabel("Your sum is: " + this.player.getSumOfCards());
-        // this.statusMessage = new JLabel("game has started");
-        
+
         // create the image labels for the cards of the computer, because its cards should be hidden from the player
         // the cards will only be displayed as the from the back, till someone knocks
         this.computerCardLabels = new JLabel[3];
@@ -135,7 +136,7 @@ public class GameWindow extends JFrame implements ActionListener {
 		// add some of the buttons to view
 		contentArea.add("West", this.discardPileButton);
 		contentArea.add("East", this.stockPileButton);
-		contentArea.add("South", this.knockButton);
+		contentArea.add("South", this.doneWithTurnButton);
 
 		// make section for status message, and add it to view
 		JPanel messageSection = new JPanel();
@@ -147,7 +148,7 @@ public class GameWindow extends JFrame implements ActionListener {
         setContentPane(contentArea);
     }
 
-	// Method is used to add the card labels to the window.
+	// Method is used to add the card labels (and buttons) to the window.
 	private void addCardLabels(Container container) {
 
 		// the entire section for the card labels to be put in
@@ -183,11 +184,15 @@ public class GameWindow extends JFrame implements ActionListener {
 	}
 
     // Method makes the pile buttons invisible and "turns the card labels into card buttons"
-	private void hideLabelsAndShowButtons() {
+	private void showCardButtons() {
 
+        // the pile buttons and turn button should not be visible, so that the player doesn't
+        // accidentally click them, resulting in weird behavior
 		this.stockPileButton.setVisible(false);
 		this.discardPileButton.setVisible(false);
+        this.doneWithTurnButton.setVisible(false);
 
+        // the card buttons should be visible, and the card labels - invisible.
 		for (int i = 0; i < this.playerCardLabels.length; i++) {
 
 			this.playerCardLabels[i].setVisible(false);
@@ -198,21 +203,24 @@ public class GameWindow extends JFrame implements ActionListener {
     // Method is used to exchange a card with either stock pile or discard pile
     private void discardCard(int indexOfDiscardedCard) {
 
-    	ImageIcon imageOfDiscardedCard = player.getImageIconOf(indexOfDiscardedCard);
-        if (this.isDrawingFromStock) {
+    	ImageIcon imageOfDiscardedCard = player.getImageIconOf(indexOfDiscardedCard); // used to display card on discard pile
+        if (this.isDrawingFromStock) { // if player clicked to exchange with stock
 
             this.player.drawCardFromStock(indexOfDiscardedCard);
         }
-        else {
+        else { // if they didn't
 
             this.player.drawCardFromDiscard(indexOfDiscardedCard);
         }
 
-        this.alterView(imageOfDiscardedCard);
+        this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
     }
 
+    // Method is used to change settings on discard buttons, and reload view
     private void alterView(ImageIcon icon) {
 
+        // code block below is used to get images of the new cards of player, and make discard button visible
+        // with the image of it being the last card that was discarded
         this.generatePlayerComponents();
         this.generateOtherComponents();
     	this.discardPileButton.setVisible(true);
@@ -220,63 +228,66 @@ public class GameWindow extends JFrame implements ActionListener {
         this.discardPileButton.addActionListener(this);
         this.discardPileButton.setBackground(this.colorOfBoard);
         getContentPane().removeAll();
-        
+
+        // if stock pile is empty and there is a discard pile, the button of stock pile should be invisible (= no stock pile)
         if (this.player.isStockPileEmpty() && this.stockPileButton.isVisible()) {
-        	
+
         	this.stockPileButton.setVisible(false);
         }
-        
+
+        // reload the view
         this.addAllComponentsToView();
     }
 
+    // Method is used to simulate the computer making a move.
     private void initiateComputerMove() {
-    	
+
         if (!(this.computer.getSumOfCards() > 26 && this.computer.getSumOfCards() < 32)) {
-        	
-            ImageIcon imageOfDiscardedCard = this.computer.makeMove();
-            this.alterView(imageOfDiscardedCard);
-            // System.out.println(imageOfDiscardedCard.getDescription()); // displays players card :(
-            // System.out.println("hello");
+
+            ImageIcon imageOfDiscardedCard = this.computer.makeMove(); // the image of the discarded card
+            this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
         }
         else {
-        	
+
         	this.statusMessage.setText("Computer is knocking, it's your turn");
         	this.isComputerKnocking = true;
-        	
         }
     }
-    
+
+    // displays the computers cards, as well as making buttons invisible
     private void displayCards() {
-    	
+
     	this.stockPileButton.setVisible(false);
     	this.discardPileButton.setVisible(false);
-    	
+        this.doneWithTurnButton.setVisible(false);
+
         ImageIcon[] imagesOfCardsOnHand = this.getOnHandCardImages(this.computer);
         for (int i = 0; i < this.computerCardLabels.length; i++) {
-        	
+
         	this.computerCardLabels[i].setIcon(imagesOfCardsOnHand[i]);
         }
     }
-    
+
+    // compares the card sum of player and computer, and declares a winner
     private void declareWinner() {
-    	
+
     	double playerSum = this.player.getSumOfCards();
     	double computerSum = this.computer.getSumOfCards();
-    	
+
     	if (playerSum < computerSum) {
-    		
+
     		this.statusMessage.setText("Computer wins round");
     	}
     	else if (playerSum > computerSum) {
-    		
+
     		this.statusMessage.setText("You win round");
     	}
     	else {
-    		
+
     		this.statusMessage.setText("404 no winner found");
     	}
     }
-    
+
     /* User Interface */
 
 	// method is used to simulate whatever happens when player has
@@ -284,43 +295,49 @@ public class GameWindow extends JFrame implements ActionListener {
 	@Override
     public void actionPerformed(ActionEvent event) {
 
-        if (event.getSource() == this.stockPileButton) {
+        if (event.getSource() == this.stockPileButton) { // if player clicked the stock pile
 
-            this.isDrawingFromStock = true;
-            this.hideLabelsAndShowButtons();
-        }
-        else if (event.getSource() == this.discardPileButton) {
+            if (!this.hasExchangeOccurred) { // checks if player hasn't drawn yet
 
-            this.isDrawingFromStock = false;
-            this.hideLabelsAndShowButtons();
+                this.isDrawingFromStock = true;
+                this.showCardButtons(); // show players cards as buttons for player to choose a card to discard
+            }
         }
-        else if (event.getSource() == this.knockButton) {
-        	
-        	// this.statusMessage.setText("You are knocking, it is computer's turn");
-        	this.initiateComputerMove();
-        	this.displayCards();
-        	this.declareWinner();
-        }
-        else {
+        else if (event.getSource() == this.discardPileButton) { // if player clicked the discard pile
 
+            if (!this.hasExchangeOccurred) { // checks if player hasn't drawn yet
+
+                this.isDrawingFromStock = false;
+                this.showCardButtons(); // show players cards as buttons for player to choose a card to discard
+            }
+        }
+        else if (event.getSource() == this.doneWithTurnButton) { // if player is done with their turn
+
+            this.initiateComputerMove(); // computer makes a move
+
+            // if player has thrown a turn (knocked) or if the computer has knocked
+            if (!this.hasExchangeOccurred || this.isComputerKnocking) {
+
+                this.displayCards();
+                this.declareWinner();
+            }
+
+            this.hasExchangeOccurred = false; // change back for next turn;
+        }
+        else { // if player clicked another button (the card buttons)
+
+            // loop goes through the card buttons to see which card was clicked
             for (int indexOfDiscardedCard = 0; indexOfDiscardedCard < this.playerCardButtons.length; indexOfDiscardedCard++) {
 
+                // if card is found
                 if (event.getSource() == this.playerCardButtons[indexOfDiscardedCard]) {
 
-                    this.discardCard(indexOfDiscardedCard);
+                    this.discardCard(indexOfDiscardedCard); // card is discarded
                     break;
                 }
             }
-            
-            if (!this.isComputerKnocking) {
-            	
-            	// this.initiateComputerMove();
-            }
-            else {
-            	
-            	// this.displayCards();
-            	// this.declareWinner();
-            }
+
+            this.hasExchangeOccurred = true; // a card exchange has thus occurred
         }
     }
 }

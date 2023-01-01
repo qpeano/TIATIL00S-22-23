@@ -26,16 +26,41 @@
 
      /* Internal */
 
-     // counts up the value of each card on hand
+     // Method counts up the value of each card on hand
+     // if all cards have same rank, then 30.5 is to be returned
      private double calculateCardSum(String[] cards) {
-
-         double sum = 0;
-         for (int i = 0; i < cards.length; i++) {
-
-             sum += Player.board.getValueOf(cards[i]);
-         }
-
-         return sum;
+    	 
+    	 double sum = 0;
+    	 double[] cardValues = new double[cards.length];
+    	 for (int i = 0; i < cards.length; i++) {
+    		 
+    		 cardValues[i] = Player.board.getValueOf(cards[i]);
+    		 sum += cardValues[i];
+    	 }
+    	 
+    	 if (this.allCardsHaveSameRank(cardValues)) {
+    		 
+    		 return 30.5;
+    	 }
+    	 else {
+    		 
+    		 return sum;
+    	 }
+     }
+     
+     // Method checks if all values (cards) of an array (hand) are the same 
+     private boolean allCardsHaveSameRank(double[] cardValues) {
+    	 
+    	 double checker = cardValues[0];
+    	 for (int i = 1; i < cardValues.length; i++) {
+    		 
+    		 if (!(checker == cardValues[i])) {
+    			 
+    			 return false;
+    		 }
+    	 }
+    	 
+    	 return true;
      }
 
      // Method is used to determine if computer should exchange a card with the top card of discard pile or not

@@ -94,7 +94,7 @@ public class GameWindow extends JFrame implements ActionListener {
     private void makeButtons() {
 
         // create and set up the buttons that are visible most of the time
-		this.doneWithTurnButton = new JButton("done");
+		this.doneWithTurnButton = new JButton("knock");
 		this.doneWithTurnButton.addActionListener(this);
 
 		this.stockPileButton = new JButton(this.backOfCardImage);
@@ -284,18 +284,19 @@ public class GameWindow extends JFrame implements ActionListener {
     // Method is used to simulate the computer making a move.
     private void initiateComputerMove() {
 
-        if (this.computer.isDrawingCard()) { // if computer isn't already knocking
+        if (this.computer.isDrawingCard()) { // if computer is/ should be a drawing card
 
             ImageIcon imageOfDiscardedCard = this.computer.makeMove(); // the image of the discarded card
             this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
         }
-        else { // if it is, then display that it is knocking
+        else {
         	
-        	System.out.println("hello world");
-            this.statusMessage.setText("Computer is knocking, it's your turn");
+        	this.statusMessage.setText("Computer is knocking");
         }
     }
-
+    
+    // Method is used to simulate whatever happens when user has clicked a button
+    // that isn't the "done" button
     private void act(ActionEvent event) {
 
         if (event.getSource() == this.stockPileButton) { // if user clicked the stock pile
@@ -328,6 +329,7 @@ public class GameWindow extends JFrame implements ActionListener {
             }
 
             this.exchangeHasOccurred = true; // a card exchange has thus occurred
+            this.doneWithTurnButton.setText("done");
         }
     }
 
@@ -338,12 +340,12 @@ public class GameWindow extends JFrame implements ActionListener {
 	@Override
     public void actionPerformed(ActionEvent event) {
 
-        if (this.isUserKnocking) {
+        if (this.isUserKnocking && event.getSource() == this.doneWithTurnButton) {
 
             this.initiateComputerMove();
         }
-        else if (!this.computer.isDrawingCard()) {
-
+        else if (!this.computer.isDrawingCard() && event.getSource() == this.doneWithTurnButton) {
+        	
             this.act(event);
         }
         else {
@@ -354,6 +356,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 if (!this.exchangeHasOccurred) {
 
                     this.isUserKnocking = true;
+                    this.statusMessage.setText("You are knocking");
                     this.doneWithTurnButton.setText("show cards");
                 }
                 

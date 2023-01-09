@@ -168,8 +168,11 @@ public class Board {
 
         String temporaryCardHolder = null;
         Random random = new Random();
-        
+        	
+	    	// goes through pile, and rearranges some cards by changing the index 
+        	// of a card to another random index. 
 		for (int i = 0; i < pile.length; i++) {
+			
 			int randomIndexToSwap = random.nextInt(pile.length);
 			temporaryCardHolder = pile[randomIndexToSwap];
 			pile[randomIndexToSwap] = pile[i];

@@ -1,19 +1,26 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+/* Class simulates the game "31"
+ *
+ * Author: Shamiur Rahman Ramim
+ */
 
-public class GameWindow extends JFrame implements ActionListener {
+ import javax.swing.*;
+ import java.awt.*;
+ import java.awt.event.*;
+
+ public class GameWindow extends JFrame implements ActionListener {
 
     /* Fields */
 
     private JButton stockPileButton; // button for when the user wants to draw card from stock pile
     private JButton discardPileButton; // button for when the user wants to draw card from discard pile
     private JButton[] userCardButtons; // the buttons that are visible when the user chooses which card to discard
-    private JButton doneWithTurnButton; // turn goes to computer, used as knock button when no no exchange occurs
+    private JButton doneWithTurnButton; // turn goes to computer, used as knock button when no exchange occurs
+    private JButton nextRoundButton; // resets the round
 
     private JLabel[] computerCardLabels; // the labels that display the cards of the computer
     private JLabel[] userCardLabels; // the labels that display the cards of the user
-    private JLabel statusMessage; // tells what computer does and when it is the user's turn
+
+    private JPanel statusBar; // tells what computer does and when it is the user's turn, and also the scores and sums
 
     private Player computer; // the object representing the computer
     private Player user; // the object representing the user
@@ -22,42 +29,46 @@ public class GameWindow extends JFrame implements ActionListener {
 
     private Color colorOfBoard; // the color the board
 
-    private boolean isDrawingFromStock; // remembers which pile to draw a card from
+    private boolean isDrawingFromStock; // remembers which pile to player wants to draw a card from
     private boolean exchangeHasOccurred; // used as a signal to determine if user knocks or not
+    private boolean isUserKnocking; // signal to give computer another turn, and then end the game
 
-    private double userScore; // score of user
-    private double computerScore; // score of computer
-    private boolean isUserKnocking;
+    // score of computer and user are initialized outside method (setUpRound) as to not change them back to 0
+    private int userScore = 0;
+    private int computerScore = 0;
 
-    /* Constructor */
+    /* Methods - Constructor */
+
     public GameWindow() {
 
+        // following code generates and sets up the actual GUI
         super("31");
         setSize(500, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
+        // following code sets up the game
         this.backOfCardImage = new ImageIcon("back_of_card.png");
         this.colorOfBoard = Color.decode("#35654d");
         this.setUpRound();
     }
 
-    /* Internal */
+    /* Methods - Internal */
 
     // Method sets up the window and all objects that are needed for the round (a singular game of 31) to start
     private void setUpRound() {
 
+        // following code generates most of the objects and variables that can't be seen in window
         this.user = new Player(false);
         this.computer = new Player(true);
         this.isDrawingFromStock = false; // starting value, means nothing yet
         this.exchangeHasOccurred = false;
-        this.userScore = 0;
-        this.computerScore = 0;
         this.isUserKnocking = false;
 
+        // following code generates and add the components to window
         this.generatePlayerComponents();
         this.generateOtherComponents();
-        this.addAllComponentsToView();
+        this.addComponentsToView();
     }
 
     // Method creates all things that the user will use in a game of 31
@@ -106,6 +117,11 @@ public class GameWindow extends JFrame implements ActionListener {
 		this.discardPileButton.setBackground(this.colorOfBoard);
 		this.discardPileButton.setVisible(false); // discard pile should not be visible when empty
 
+        // create the button that is only visible when a round has ended
+        this.nextRoundButton = new JButton("next round");
+        this.nextRoundButton.addActionListener(this);
+        this.nextRoundButton.setVisible(false);
+
         // create the buttons that are visible when user chooses which card to discard
         ImageIcon[] imagesOfCardsOnHand = this.getOnHandCardImages(this.user);
         this.userCardButtons = new JButton[3];
@@ -121,8 +137,11 @@ public class GameWindow extends JFrame implements ActionListener {
     // Method makes all the components that the user can't interact with
     private void generateOtherComponents() {
 
-        // create the status message
-        this.statusMessage = new JLabel("Your sum is: " + this.user.getSumOfCards());
+        // create and fill the status section
+        this.statusBar = new JPanel(new BorderLayout());
+        
+        String statusMessage = "Your sum is " + this.user.getSumOfCards();
+        this.updateStatusBar(statusMessage);
 
         // create the image labels for the cards of the computer, because its cards should be hidden from the user
         // the cards will only be displayed as the from the back, till someone knocks
@@ -131,8 +150,20 @@ public class GameWindow extends JFrame implements ActionListener {
         this.generatImageLabels(this.computerCardLabels, backOfCardImageList);
     }
 
+    // Method is used to update the status bar so that it has the right scores and has the right status message
+    private void updateStatusBar(String statusMessage) {
+
+        // erases the content of the status bar
+        this.statusBar.removeAll();
+
+        // re-populate status bar with new scores and a status message
+        this.statusBar.add(new JLabel("Computer: " + this.computerScore), BorderLayout.WEST);
+        this.statusBar.add(new JLabel("User: " + this.userScore), BorderLayout.EAST);
+        this.statusBar.add(new JLabel(statusMessage), BorderLayout.NORTH);
+    }
+
     // Method adds all components to the container/ view
-    private void addAllComponentsToView() {
+    private void addComponentsToView() {
 
 		Container contentArea = getContentPane();
 		contentArea.setBackground(this.colorOfBoard);
@@ -141,11 +172,7 @@ public class GameWindow extends JFrame implements ActionListener {
 		contentArea.add("West", this.discardPileButton);
 		contentArea.add("East", this.stockPileButton);
 		contentArea.add("South", this.doneWithTurnButton);
-
-		// make section for status message, and add it to view
-		JPanel messageSection = new JPanel();
-		messageSection.add(this.statusMessage);
-		contentArea.add("North", messageSection);
+		contentArea.add("North", this.statusBar);
 
         // add all card labels to view, and set the view
         this.addCardLabels(contentArea);
@@ -187,6 +214,7 @@ public class GameWindow extends JFrame implements ActionListener {
 		container.add("Center", cardSection);
 	}
 
+    // ---------
     // Method makes the pile buttons invisible and "turns the card labels into card buttons"
 	private void showCardButtons() {
 
@@ -242,7 +270,7 @@ public class GameWindow extends JFrame implements ActionListener {
         }
 
         // reload the view
-        this.addAllComponentsToView();
+        this.addComponentsToView();
     }
 
     // Method displays the computers cards, as well as making buttons invisible
@@ -267,18 +295,22 @@ public class GameWindow extends JFrame implements ActionListener {
 
         if (playerSum > computerSum && playerSum <= 31) { // the sum should always be less than or equal to 31
 
-            this.statusMessage.setText("You win this round");
+        	
             this.userScore++;
+            this.updateStatusBar("You win this round");
         }
         else if (playerSum == computerSum) {
-
-            this.statusMessage.setText("404 no winner found for this round");
+        	
+            this.updateStatusBar("no winner");
         }
         else {
-
-            this.statusMessage.setText("Computer wins this round");
+        	
             this.computerScore++;
+            this.updateStatusBar("Computer wins this round");
         }
+        
+        this.nextRoundButton.setVisible(true);
+        getContentPane().add("South", this.nextRoundButton);
     }
 
     // Method is used to simulate the computer making a move.
@@ -290,16 +322,22 @@ public class GameWindow extends JFrame implements ActionListener {
             this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
         }
         else {
-        	
-        	this.statusMessage.setText("Computer is knocking");
+
+        	this.updateStatusBar("Computer is knocking");
         }
     }
-    
+
     // Method is used to simulate whatever happens when user has clicked a button
     // that isn't the "done" button
     private void act(ActionEvent event) {
-
-        if (event.getSource() == this.stockPileButton) { // if user clicked the stock pile
+    	
+    	if (event.getSource() == this.nextRoundButton) { // if user clicked the next round button, environment will reset
+    		
+    		getContentPane().removeAll();
+    		this.user.resetBoard(); // resets board
+    		this.setUpRound();
+    	}
+       else if (event.getSource() == this.stockPileButton) { // if user clicked the stock pile
 
             if (!this.exchangeHasOccurred) { // checks if user hasn't drawn yet
 
@@ -340,26 +378,26 @@ public class GameWindow extends JFrame implements ActionListener {
 	@Override
     public void actionPerformed(ActionEvent event) {
 
-        if (this.isUserKnocking && event.getSource() == this.doneWithTurnButton) {
+	    if (this.isUserKnocking && event.getSource() == this.doneWithTurnButton) {
 
             this.initiateComputerMove();
         }
         else if (!this.computer.isDrawingCard() && event.getSource() == this.doneWithTurnButton) {
-        	
+
             this.act(event);
         }
         else {
 
             if (event.getSource() == this.doneWithTurnButton) { // if user is done with turn
-            	
+
             	this.initiateComputerMove();
                 if (!this.exchangeHasOccurred) {
 
                     this.isUserKnocking = true;
-                    this.statusMessage.setText("You are knocking");
+                    this.updateStatusBar("You are knocking");
                     this.doneWithTurnButton.setText("show cards");
                 }
-                
+
                 this.exchangeHasOccurred = false;
             }
             else {
@@ -368,8 +406,8 @@ public class GameWindow extends JFrame implements ActionListener {
             }
             return;
         }
-        
+
         this.displayComputersCards();
         this.declareWinner();
     }
-}
+ }

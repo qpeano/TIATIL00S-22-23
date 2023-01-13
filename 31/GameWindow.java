@@ -66,13 +66,13 @@
         this.isUserKnocking = false;
 
         // following code generates and add the components to window
-        this.generatePlayerComponents();
+        this.generateUserComponents();
         this.generateOtherComponents();
         this.addComponentsToView();
     }
 
     // Method creates all things that the user will use in a game of 31
-    private void generatePlayerComponents() {
+    private void generateUserComponents() {
 
         ImageIcon[] imagesOfCardsOnHand = this.getOnHandCardImages(this.user);
         this.userCardLabels = new JLabel[3];
@@ -255,7 +255,7 @@
 
         // code block below is used to get images of the new cards of user, and make discard button visible
         // with the image of it being the last card that was discarded
-        this.generatePlayerComponents();
+        this.generateUserComponents();
         this.generateOtherComponents();
     	this.discardPileButton.setVisible(true);
         this.discardPileButton = new JButton(icon);
@@ -309,8 +309,15 @@
             this.updateStatusBar("Computer wins this round");
         }
         
-        this.nextRoundButton.setVisible(true);
-        getContentPane().add("South", this.nextRoundButton);
+        if (!(this.computerScore == 4 || this.userScore == 4)) {
+        	
+            this.nextRoundButton.setVisible(true);
+            getContentPane().add("South", this.nextRoundButton);
+        }
+        else {
+        	
+        	this.updateStatusBar("Game has ended");
+        }
     }
 
     // Method is used to simulate the computer making a move.
@@ -367,7 +374,7 @@
             }
 
             this.exchangeHasOccurred = true; // a card exchange has thus occurred
-            this.doneWithTurnButton.setText("done");
+            this.doneWithTurnButton.setText("done with turn");
         }
     }
 

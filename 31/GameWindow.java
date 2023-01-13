@@ -31,11 +31,13 @@
 
     private boolean isDrawingFromStock; // remembers which pile to player wants to draw a card from
     private boolean exchangeHasOccurred; // used as a signal to determine if user knocks or not
-    private boolean isUserKnocking; // signal to give computer another turn, and then end the game
+    private boolean userIsKnocking; // signal to give computer another turn, and then end the game
 
     // score of computer and user are initialized outside method (setUpRound) as to not change them back to 0
     private int userScore = 0;
     private int computerScore = 0;
+    
+    private Board board;
 
     /* Methods - Constructor */
 
@@ -59,11 +61,12 @@
     private void setUpRound() {
 
         // following code generates most of the objects and variables that can't be seen in window
-        this.user = new Player(false);
-        this.computer = new Player(true);
+    	this.board = new Board();
+        this.user = new Player(this.board, false);
+        this.computer = new Player(this.board, true);
         this.isDrawingFromStock = false; // starting value, means nothing yet
         this.exchangeHasOccurred = false;
-        this.isUserKnocking = false;
+        this.userIsKnocking = false;
 
         // following code generates and add the components to window
         this.generateUserComponents();
@@ -86,7 +89,7 @@
         ImageIcon[] imagesOfCardsOnHand = new ImageIcon[3];
         for (int i = 0; i < imagesOfCardsOnHand.length; i++) {
 
-            imagesOfCardsOnHand[i] = p.getImageIconOf(i);
+            imagesOfCardsOnHand[i] = p.getImageIconOf(this.board, i);
         }
 
         return imagesOfCardsOnHand;
@@ -235,16 +238,16 @@
     // Method is used to exchange a card with either stock pile or discard pile
     private void discardCard(int indexOfDiscardedCard) {
 
-    	ImageIcon imageOfDiscardedCard = user.getImageIconOf(indexOfDiscardedCard); // used to display card on discard pile
+    	ImageIcon imageOfDiscardedCard = user.getImageIconOf(this.board, indexOfDiscardedCard); // used to display card on discard pile
         if (this.isDrawingFromStock) { // if user clicked to exchange with stock
 
-            this.user.drawCardFromStock(indexOfDiscardedCard);
+            this.user.drawCardFromStock(this.board, indexOfDiscardedCard);
         }
         else { // if they didn't
 
-            this.user.drawCardFromDiscard(indexOfDiscardedCard);
+            this.user.drawCardFromDiscard(this.board, indexOfDiscardedCard);
 
-            this.user.getImageIconOf(indexOfDiscardedCard).getDescription();
+            this.user.getImageIconOf(this.board, indexOfDiscardedCard).getDescription();
         }
 
         this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
@@ -264,7 +267,7 @@
         getContentPane().removeAll();
 
         // if stock pile is empty and there is a discard pile, the button of stock pile should be invisible (= no stock pile)
-        if (this.user.isStockPileEmpty() && this.stockPileButton.isVisible()) {
+        if (this.board.isStockPileEmpty() && this.stockPileButton.isVisible()) {
 
         	this.stockPileButton.setVisible(false);
         }
@@ -325,7 +328,7 @@
 
         if (this.computer.isDrawingCard()) { // if computer is/ should be a drawing card
 
-            ImageIcon imageOfDiscardedCard = this.computer.makeMove(); // the image of the discarded card
+            ImageIcon imageOfDiscardedCard = this.computer.makeMove(this.board); // the image of the discarded card
             this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
         }
         else {
@@ -341,7 +344,6 @@
     	if (event.getSource() == this.nextRoundButton) { // if user clicked the next round button, environment will reset
     		
     		getContentPane().removeAll();
-    		this.user.resetBoard(); // resets board
     		this.setUpRound();
     	}
        else if (event.getSource() == this.stockPileButton) { // if user clicked the stock pile
@@ -385,7 +387,7 @@
 	@Override
     public void actionPerformed(ActionEvent event) {
 
-	    if (this.isUserKnocking && event.getSource() == this.doneWithTurnButton) {
+	    if (this.userIsKnocking && event.getSource() == this.doneWithTurnButton) {
 
             this.initiateComputerMove();
         }
@@ -400,7 +402,7 @@
             	this.initiateComputerMove();
                 if (!this.exchangeHasOccurred) {
 
-                    this.isUserKnocking = true;
+                    this.userIsKnocking = true;
                     this.updateStatusBar("You are knocking");
                     this.doneWithTurnButton.setText("show cards");
                 }
@@ -418,3 +420,4 @@
         this.declareWinner();
     }
  }
+

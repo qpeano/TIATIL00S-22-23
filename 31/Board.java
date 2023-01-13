@@ -41,20 +41,18 @@ public class Board {
 
     /* Fields */
 
-    private ImageIcon[] cardImages; // icons of all the playing-cards (1)
+    private ImageIcon[] cardImages; // the images of all cards
     private String[] stockPile; // the stock pile of cards
-    private String[] discardPile; // the discard pile of cards
-    private int numberOfDiscardedCards; // number of cards that have actually been discarded
+    private String[] discardPile; // discard pile of cards
 
-    /* Constructor */
+    /* Methods - Constructor */
 
     public Board() {
 
         this.getAllCardImages(); // (2)
         this.generateStockPile();
         this.shufflePile(this.stockPile);
-        this.discardPile = new String[52];
-        this.numberOfDiscardedCards = 0;
+        this.discardPile = new String[0];
     }
 
     /* Internal */
@@ -145,34 +143,33 @@ public class Board {
     private void generateStockPile() {
 
         this.stockPile = new String[52];
-
         // loop goes through and fills the empty stock pile with string representations of cards
         for (int suit = 0; suit < 4; suit++) {
-        	
+
         	for (int cardCount = 0; cardCount < 13; cardCount++) {
-        		
+
         		int cardIndex = suit * 13 + cardCount;
         		this.stockPile[cardIndex] = suit + "";
         		if (cardCount < 9) {
-        			
+
         			this.stockPile[cardIndex] += "0";
         		}
-        		
+
         		this.stockPile[cardIndex] += (cardCount + 1);
         	}
         }
     }
 
-    // shuffles a card pile (stolen: https://www.digitalocean.com/community/tutorials/shuffle-array-java)
+    // shuffles a card pile
     private void shufflePile(String[] pile) {
 
         String temporaryCardHolder = null;
         Random random = new Random();
-        	
-	    	// goes through pile, and rearranges some cards by changing the index 
-        	// of a card to another random index. 
+
+        // goes through pile, and rearranges some cards by changing the index
+        // of a card to another random index.
 		for (int i = 0; i < pile.length; i++) {
-			
+
 			int randomIndexToSwap = random.nextInt(pile.length);
 			temporaryCardHolder = pile[randomIndexToSwap];
 			pile[randomIndexToSwap] = pile[i];
@@ -186,32 +183,34 @@ public class Board {
     	char[] characters = card.toCharArray();
     	int suit = Character.getNumericValue(characters[0]);
     	int cardCount = Character.getNumericValue(characters[1]) * 10  + Character.getNumericValue(characters[2]);
-    	int index = suit * 13 + (cardCount - 1); 
+    	int index = suit * 13 + (cardCount - 1);
 		return index;
     }
 
-    /* User Interface */
+    /* Methods - UI */
 
-    // Method is used when user wants to draw a new card from stock pile
+    // Method is used when user wants to draw a new card from stock pile and discards a card from hand
     public String drawFromStock(String card) {
-    	
-    	//System.out.println(this.numberOfDiscardedCards);
-        this.discardPile[this.numberOfDiscardedCards++] = card; // adds the discarded card to the discard pile
+
         String newCard = this.stockPile[this.stockPile.length - 1]; // gets the card from the top of the stock pile
 
         // makes new stock pile without the top card
         String[] newStockPile = Arrays.copyOf(this.stockPile, this.stockPile.length - 1);
         this.stockPile = newStockPile;
-        // this.numberOfDiscardedCards++; <- incrementation doesn't work???
-        
+
+        // makes a new discard pile with the most recent top card of the stock pile
+        String[] newDiscardPile = Arrays.copyOf(this.discardPile, this.discardPile.length + 1);
+        newDiscardPile[newDiscardPile.length - 1] = card; // adds the discarded card to the new discard pile
+        this.discardPile = newDiscardPile;
+
         return newCard;
     }
-    
+
     // Method is used when user wants to draw a new card from discard pile
     public String drawFromDiscard(String card) {
-    	
-        String newCard = this.discardPile[this.numberOfDiscardedCards - 1]; // get the top card of discard pile
-        this.discardPile[this.numberOfDiscardedCards - 1] = card; // over write top card with argument
+
+        String newCard = this.discardPile[this.discardPile.length - 1]; // get the top card of discard pile
+        this.discardPile[this.discardPile.length - 1] = card; // overwrite top card with argument
         return newCard;
     }
 
@@ -232,7 +231,7 @@ public class Board {
 			value = 11;
 		}
 		else if (value > 10) {
-			
+
 			value = 10;
 		}
 
@@ -258,7 +257,7 @@ public class Board {
     // Method is used to check if discard pile is empty
     public boolean isDiscardPileEmpty() {
 
-        return (this.numberOfDiscardedCards == 0);
+        return (this.discardPile.length == 0);
     }
 
     // Method is used to check if stock pile is empty
@@ -272,7 +271,7 @@ public class Board {
 
         if (!this.isDiscardPileEmpty()) {
 
-            return this.discardPile[this.numberOfDiscardedCards - 1];
+            return this.discardPile[this.discardPile.length - 1];
         }
         else {
 

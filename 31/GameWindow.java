@@ -32,11 +32,11 @@
     private boolean isDrawingFromStock; // remembers which pile to player wants to draw a card from
     private boolean exchangeHasOccurred; // used as a signal to determine if user knocks or not
     private boolean userIsKnocking; // signal to give computer another turn, and then end the game
+    private boolean computerIsKnocking;
 
-    // score of computer and user are initialized outside method (setUpRound) as to not change them back to 0
-    private int userScore = 0;
-    private int computerScore = 0;
-    
+    private int userScore; // score of the player
+    private int computerScore; // score of the computer
+
     private Board board;
 
     /* Methods - Constructor */
@@ -53,6 +53,10 @@
         this.backOfCardImage = new ImageIcon("back_of_card.png");
         this.colorOfBoard = Color.decode("#35654d");
         this.setUpRound();
+
+        // scores are initialized here to stop them from being reset to 0 after evey round
+        this.userScore = 0;
+        this.computerScore = 0;
     }
 
     /* Methods - Internal */
@@ -67,6 +71,7 @@
         this.isDrawingFromStock = false; // starting value, means nothing yet
         this.exchangeHasOccurred = false;
         this.userIsKnocking = false;
+        this.computerIsKnocking = false;
 
         // following code generates and add the components to window
         this.generateUserComponents();
@@ -108,7 +113,7 @@
     private void makeButtons() {
 
         // create and set up the buttons that are visible most of the time
-		this.doneWithTurnButton = new JButton("knock");
+		this.doneWithTurnButton = new JButton("Knock");
 		this.doneWithTurnButton.addActionListener(this);
 
 		this.stockPileButton = new JButton(this.backOfCardImage);
@@ -142,7 +147,7 @@
 
         // create and fill the status section
         this.statusBar = new JPanel(new BorderLayout());
-        
+
         String statusMessage = "Your sum is " + this.user.getSumOfCards();
         this.updateStatusBar(statusMessage);
 
@@ -298,27 +303,27 @@
 
         if (playerSum > computerSum && playerSum <= 31) { // the sum should always be less than or equal to 31
 
-        	
+
             this.userScore++;
             this.updateStatusBar("You win this round");
         }
         else if (playerSum == computerSum) {
-        	
+
             this.updateStatusBar("no winner");
         }
         else {
-        	
+
             this.computerScore++;
             this.updateStatusBar("Computer wins this round");
         }
-        
+
         if (!(this.computerScore == 4 || this.userScore == 4)) {
-        	
+
             this.nextRoundButton.setVisible(true);
             getContentPane().add("South", this.nextRoundButton);
         }
         else {
-        	
+
         	this.updateStatusBar("Game has ended");
         }
     }
@@ -326,13 +331,14 @@
     // Method is used to simulate the computer making a move.
     private void initiateComputerMove() {
 
-        if (this.computer.isDrawingCard()) { // if computer is/ should be a drawing card
+    	ImageIcon imageOfDiscardedCard = this.computer.think(this.board); // the image of the discarded card or nothing
+        if (!(imageOfDiscardedCard == null)) { // if computer is/ should be a drawing card
 
-            ImageIcon imageOfDiscardedCard = this.computer.makeMove(this.board); // the image of the discarded card
             this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
         }
         else {
 
+        	this.computerIsKnocking = true;
         	this.updateStatusBar("Computer is knocking");
         }
     }
@@ -340,9 +346,9 @@
     // Method is used to simulate whatever happens when user has clicked a button
     // that isn't the "done" button
     private void act(ActionEvent event) {
-    	
+
     	if (event.getSource() == this.nextRoundButton) { // if user clicked the next round button, environment will reset
-    		
+
     		getContentPane().removeAll();
     		this.setUpRound();
     	}
@@ -376,7 +382,7 @@
             }
 
             this.exchangeHasOccurred = true; // a card exchange has thus occurred
-            this.doneWithTurnButton.setText("done with turn");
+            this.doneWithTurnButton.setText("Done with turn");
         }
     }
 
@@ -391,7 +397,7 @@
 
             this.initiateComputerMove();
         }
-        else if (!this.computer.isDrawingCard() && event.getSource() == this.doneWithTurnButton) {
+        else if (this.computerIsKnocking && event.getSource() == this.doneWithTurnButton) {
 
             this.act(event);
         }
@@ -404,7 +410,7 @@
 
                     this.userIsKnocking = true;
                     this.updateStatusBar("You are knocking");
-                    this.doneWithTurnButton.setText("show cards");
+                    this.doneWithTurnButton.setText("Show cards");
                 }
 
                 this.exchangeHasOccurred = false;
@@ -420,4 +426,3 @@
         this.declareWinner();
     }
  }
-

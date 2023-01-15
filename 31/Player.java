@@ -1,9 +1,11 @@
-//* Class is used to simulate a player in the game "31".
+/* Class is used to simulate a player in the game "31".
  *
  * Author: Shamiur Rahman Ramim
  */
 
- import javax.swing.ImageIcon;
+ import java.util.Random;
+
+import javax.swing.ImageIcon;
 
  public class Player {
 
@@ -168,6 +170,21 @@
         return cardIcon;
     }
 
+    public ImageIcon think(Board board) {
+
+    	Random rand = new Random();
+    	ImageIcon icon = null;
+
+    	boolean cardSumIs31or30 = (this.sumOfCardValues == 31 || this.sumOfCardValues == 30);
+
+    	if (!(rand.nextInt() % 2 == 0) || !cardSumIs31or30) {
+
+    		icon = this.makeMove(board);
+    	}
+
+    	return icon;
+    }
+
     // Method is only used by computer
     public ImageIcon makeMove(Board board) {
 
@@ -211,12 +228,6 @@
         this.sumOfCardValues = this.calculateCardSum(board, this.cardsOnHand);
 
         return imageOfDiscardedCard;
-    }
-
-    // Method should ONLY  be used by computer, tells computer if it should make a move or not
-    public boolean isDrawingCard() {
-
-        return !(this.sumOfCardValues > 26 && this.sumOfCardValues < 32);
     }
 
     // Method is used to get card sum

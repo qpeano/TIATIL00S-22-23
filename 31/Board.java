@@ -1,38 +1,3 @@
-/* Class is used to simulate two a piles of cards, a stock pile and a discard pile.
- * The formatting of the cards are explained below.
- *
- * A card is a string of digits 'sdd' where the first digit, 's', is the suit of the card.
- *
- * 0 : clubs
- * 1 : diamonds
- * 2 : hearts
- * 3 : spades
- *
- * The last two digits, 'dd' denote the card. Where the cards with numbers are the numbers on the cards.
- * The other "special" cards have been given other values.
- *
- * 1 : ace
- * 11 : jester
- * 12 : queen
- * 13 : king
- *
- * This class is used with other classes to simulate a variation of the game "31".
- * 
- * CLARIFICATION: 
- * 
- * (1) declaring all fields (= variables declared outside methods) 
- *     as private prevents them to be changed be changed by anything outside of this class. 
- * (2) this.[variable name] is used to refer to a field of a class.
- *     You are able to refer to a field with only its name, but I like to use
- *     this.[variable name].
- * (3) declaring methods as privates prevents them from being called outside this class
- * (4) this.[method name] is in the same as doing this.[variable name], I prefer
- *     to write this.[method name] instead of [method name]. 
- *
- * ----
- * Author: Shamiur Rahman Ramim
- */
-
 import java.util.Random;
 import javax.swing.ImageIcon;
 import java.util.Arrays;

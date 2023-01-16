@@ -170,20 +170,20 @@ import javax.swing.ImageIcon;
         return cardIcon;
     }
 
-    public ImageIcon think(Board board) {
+    // public ImageIcon makeMove(Board board) {
 
-    	Random rand = new Random();
-    	ImageIcon icon = null;
+    // 	Random rand = new Random();
+    // 	ImageIcon icon = null;
 
-    	boolean cardSumIs31or30 = (this.sumOfCardValues == 31 || this.sumOfCardValues == 30);
+    // 	boolean cardSumIs31or30 = (this.sumOfCardValues == 31 || this.sumOfCardValues == 30);
 
-    	if (!(rand.nextInt() % 2 == 0) || !cardSumIs31or30) {
+    // 	if (!(rand.nextInt() % 2 == 0) && !cardSumIs31or30) {
 
-    		icon = this.makeMove(board);
-    	}
+    // 		icon = this.draw(board);
+    // 	}
 
-    	return icon;
-    }
+    // 	return icon;
+    // }
 
     // Method is only used by computer
     public ImageIcon makeMove(Board board) {

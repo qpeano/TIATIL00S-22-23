@@ -3,8 +3,7 @@
  * Author: Shamiur Rahman Ramim
  */
 
- import java.util.Random;
-
+import java.util.Random;
 import javax.swing.ImageIcon;
 
  public class Player {
@@ -169,24 +168,26 @@ import javax.swing.ImageIcon;
         ImageIcon cardIcon = board.getIconOf(this.cardsOnHand[indexOfCard]);
         return cardIcon;
     }
+    
+    // Method simulates computer making a move
+    public ImageIcon makeMove(Board board) {
 
-    // public ImageIcon makeMove(Board board) {
+     	Random rand = new Random();
+     	ImageIcon icon = null;
 
-    // 	Random rand = new Random();
-    // 	ImageIcon icon = null;
+     	boolean cardSumIs31or30 = (this.sumOfCardValues == 31 || this.sumOfCardValues == 30);
+     	
+     	// computer knocks (by doing nothing) when the random integer is even or when the card sum is 30 or 31
+     	if (!(rand.nextInt() % 2 == 0) && !cardSumIs31or30) {
 
-    // 	boolean cardSumIs31or30 = (this.sumOfCardValues == 31 || this.sumOfCardValues == 30);
+     		icon = this.draw(board); // draws card, can also be null if computer doesn't want to draw
+     	}
 
-    // 	if (!(rand.nextInt() % 2 == 0) && !cardSumIs31or30) {
-
-    // 		icon = this.draw(board);
-    // 	}
-
-    // 	return icon;
-    // }
+     	return icon;
+    }
 
     // Method is only used by computer
-    public ImageIcon makeMove(Board board) {
+    public ImageIcon draw(Board board) {
 
         ImageIcon imageOfDiscardedCard = null;
 

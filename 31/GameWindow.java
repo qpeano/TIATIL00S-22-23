@@ -126,7 +126,7 @@
 		this.discardPileButton.setVisible(false); // discard pile should not be visible when empty
 
         // create the button that is only visible when a round has ended
-        this.nextRoundButton = new JButton("next round");
+        this.nextRoundButton = new JButton("Next round");
         this.nextRoundButton.addActionListener(this);
         this.nextRoundButton.setVisible(false);
 
@@ -309,7 +309,7 @@
         }
         else if (playerSum == computerSum) {
 
-            this.updateStatusBar("no winner");
+            this.updateStatusBar("No winner");
         }
         else {
 
@@ -331,30 +331,88 @@
     // Method is used to simulate the computer making a move.
     private void initiateComputerMove() {
 
-    	ImageIcon imageOfDiscardedCard = this.computer.think(this.board); // the image of the discarded card or nothing
+    	ImageIcon imageOfDiscardedCard = this.computer.makeMove(this.board); // the image of the discarded card or nothing
         if (!(imageOfDiscardedCard == null)) { // if computer is/ should be a drawing card
 
             this.alterView(imageOfDiscardedCard); // reload view, with the discarded card on discard pile
         }
         else {
 
+        	// System.out.println("hello");
         	this.computerIsKnocking = true;
         	this.updateStatusBar("Computer is knocking");
         }
     }
+    
+    // Method checks if user clicked any of the card buttons. If so, it discards that card
+    private boolean userIsDiscarding(ActionEvent event) {
 
-    // Method is used to simulate whatever happens when user has clicked a button
-    // that isn't the "done" button
-    private void act(ActionEvent event) {
+        boolean userIsDiscarding = false;
+        // loop goes through the card buttons to see which card was clicked
+        for (int indexOfDiscardedCard = 0; indexOfDiscardedCard < this.userCardButtons.length; indexOfDiscardedCard++) {
 
-    	if (event.getSource() == this.nextRoundButton) { // if user clicked the next round button, environment will reset
+            if (event.getSource() == this.userCardButtons[indexOfDiscardedCard]) { // if card is found
 
-    		getContentPane().removeAll();
-    		this.setUpRound();
-    	}
-       else if (event.getSource() == this.stockPileButton) { // if user clicked the stock pile
+                this.discardCard(indexOfDiscardedCard); // card is discarded
+                userIsDiscarding = true;
 
-            if (!this.exchangeHasOccurred) { // checks if user hasn't drawn yet
+                this.exchangeHasOccurred = true;
+                this.doneWithTurnButton.setText("Done with turn");
+                return userIsDiscarding;
+            }
+        }
+
+        return userIsDiscarding;
+    }
+    
+    // Method checks if user has tried to change the game somehow, i.e. wanted to go to next round, 
+    // or just was done with thier round. If so, then methd changes environment according to 
+    // which button was pushed
+    private boolean userIsChangingGame(ActionEvent event) {
+
+        boolean userIsChangingGame = false;
+        boolean someoneIsKnocking = this.userIsKnocking || this.computerIsKnocking;
+
+        if (event.getSource() == this.doneWithTurnButton && !someoneIsKnocking) { // if user clicked the right button while no one has knocked
+
+        	System.out.println(this.exchangeHasOccurred);
+            if (this.exchangeHasOccurred) { // reset the text of the button to "Knock" if user has discarded a card
+
+            	this.doneWithTurnButton.setText("Knock");
+            }
+            else { // set the text of the button to show cards, let user know it knocked
+
+                this.updateStatusBar("You are knocking");
+                this.doneWithTurnButton.setText("Show cards");
+                this.userIsKnocking = true;
+                System.out.println("hej");
+            }
+
+            userIsChangingGame = true;
+            this.initiateComputerMove(); // let computer do it's thing 
+            this.exchangeHasOccurred = false;
+            System.out.println("hello");
+        }
+        else if (event.getSource() == this.doneWithTurnButton && someoneIsKnocking) { // if someone is knocking
+
+            this.displayComputersCards(); 
+            this.declareWinner();
+            userIsChangingGame = true;
+        }
+
+        return userIsChangingGame;
+    }
+
+    /* Methods - Event Handler */
+    
+	// Method is used to simulate whatever happens when user has
+	// clicked a button.
+	@Override
+    public void actionPerformed(ActionEvent event) {
+
+        if (event.getSource() == this.stockPileButton) { // if user clicked the stock pile
+
+            if (!this.exchangeHasOccurred) { // checks if user hasn't drawn yet, so user doesn't draw again before computer's turn
 
                 this.isDrawingFromStock = true;
                 this.showCardButtons(); // show players cards as buttons for user to choose a card to discard
@@ -362,67 +420,21 @@
         }
         else if (event.getSource() == this.discardPileButton) { // if user clicked the discard pile
 
-            if (!this.exchangeHasOccurred) { // checks if user hasn't drawn yet
+            if (!this.exchangeHasOccurred) { // checks if user hasn't drawn yet, so user doesn't draw again before computer's turn
 
                 this.isDrawingFromStock = false;
                 this.showCardButtons(); // show players cards as buttons for user to choose a card to discard
             }
         }
-        else {
+        else if (event.getSource() == this.nextRoundButton) { // if user clicked the next round button, environment will reset
 
-            // loop goes through the card buttons to see which card was clicked
-            for (int indexOfDiscardedCard = 0; indexOfDiscardedCard < this.userCardButtons.length; indexOfDiscardedCard++) {
+    		getContentPane().removeAll();
+    		this.setUpRound();
+    	}
+        else { // if user has pushed any of the other buttons
 
-                // if card is found
-                if (event.getSource() == this.userCardButtons[indexOfDiscardedCard]) {
-
-                    this.discardCard(indexOfDiscardedCard); // card is discarded
-                    break;
-                }
-            }
-
-            this.exchangeHasOccurred = true; // a card exchange has thus occurred
-            this.doneWithTurnButton.setText("Done with turn");
+        	this.userIsDiscarding(event); // checks if user has pushed any card buttons, if yes => discard that card
+            this.userIsChangingGame(event); // checks if user has pushed any "game changer" buttons (done with turn, next round), and does something
         }
-    }
-
-    /* Event Handler */
-
-	// method is used to simulate whatever happens when user has
-	// clicked a button.
-	@Override
-    public void actionPerformed(ActionEvent event) {
-
-	    if (this.userIsKnocking && event.getSource() == this.doneWithTurnButton) {
-
-            this.initiateComputerMove();
-        }
-        else if (this.computerIsKnocking && event.getSource() == this.doneWithTurnButton) {
-
-            this.act(event);
-        }
-        else {
-
-            if (event.getSource() == this.doneWithTurnButton) { // if user is done with turn
-
-            	this.initiateComputerMove();
-                if (!this.exchangeHasOccurred) {
-
-                    this.userIsKnocking = true;
-                    this.updateStatusBar("You are knocking");
-                    this.doneWithTurnButton.setText("Show cards");
-                }
-
-                this.exchangeHasOccurred = false;
-            }
-            else {
-
-                this.act(event);
-            }
-            return;
-        }
-
-        this.displayComputersCards();
-        this.declareWinner();
     }
  }

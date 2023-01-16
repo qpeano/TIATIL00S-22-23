@@ -165,9 +165,11 @@
         this.statusBar.removeAll();
 
         // re-populate status bar with new scores and a status message
+        this.statusBar.add(new JLabel(statusMessage), BorderLayout.NORTH);
         this.statusBar.add(new JLabel("Computer: " + this.computerScore), BorderLayout.WEST);
         this.statusBar.add(new JLabel("User: " + this.userScore), BorderLayout.EAST);
-        this.statusBar.add(new JLabel(statusMessage), BorderLayout.NORTH);
+        revalidate();
+        repaint();
     }
 
     // Method adds all components to the container/ view
@@ -279,6 +281,8 @@
 
         // reload the view
         this.addComponentsToView();
+        revalidate();
+        repaint();
     }
 
     // Method displays the computers cards, as well as making buttons invisible
@@ -357,7 +361,9 @@
                 userIsDiscarding = true;
 
                 this.exchangeHasOccurred = true;
-                this.doneWithTurnButton.setText("Done with turn");
+                this.alterTurnButton("Done with turn");
+                revalidate();
+                repaint();
                 return userIsDiscarding;
             }
         }
@@ -378,20 +384,19 @@
         	System.out.println(this.exchangeHasOccurred);
             if (this.exchangeHasOccurred) { // reset the text of the button to "Knock" if user has discarded a card
 
-            	this.doneWithTurnButton.setText("Knock");
+            	this.alterTurnButton("Knock");
+            	System.out.println("hello");
             }
             else { // set the text of the button to show cards, let user know it knocked
 
                 this.updateStatusBar("You are knocking");
-                this.doneWithTurnButton.setText("Show cards");
+                this.alterTurnButton("Show cards");
                 this.userIsKnocking = true;
-                System.out.println("hej");
             }
 
             userIsChangingGame = true;
             this.initiateComputerMove(); // let computer do it's thing 
             this.exchangeHasOccurred = false;
-            System.out.println("hello");
         }
         else if (event.getSource() == this.doneWithTurnButton && someoneIsKnocking) { // if someone is knocking
 
@@ -401,6 +406,13 @@
         }
 
         return userIsChangingGame;
+    }
+    
+    private void alterTurnButton(String text) {
+    	
+    	this.doneWithTurnButton.setText(text);
+        revalidate();
+        repaint();
     }
 
     /* Methods - Event Handler */
@@ -412,18 +424,26 @@
 
         if (event.getSource() == this.stockPileButton) { // if user clicked the stock pile
 
-            if (!this.exchangeHasOccurred) { // checks if user hasn't drawn yet, so user doesn't draw again before computer's turn
+            if (!this.exchangeHasOccurred && !this.userIsKnocking) { // checks if user hasn't drawn yet and isn't knocking, so user doesn't draw again before computer's turn
 
                 this.isDrawingFromStock = true;
                 this.showCardButtons(); // show players cards as buttons for user to choose a card to discard
             }
+            else {
+            	
+            	this.updateStatusBar("User has knocked and can thus not draw a card");
+            }
         }
         else if (event.getSource() == this.discardPileButton) { // if user clicked the discard pile
 
-            if (!this.exchangeHasOccurred) { // checks if user hasn't drawn yet, so user doesn't draw again before computer's turn
+            if (!this.exchangeHasOccurred && !this.userIsKnocking) { // checks if user hasn't drawn yet and isn't knocking, so user doesn't draw again before computer's turn
 
                 this.isDrawingFromStock = false;
                 this.showCardButtons(); // show players cards as buttons for user to choose a card to discard
+            }
+            else {
+            	
+            	this.updateStatusBar("User has knocked and can thus not draw a card");
             }
         }
         else if (event.getSource() == this.nextRoundButton) { // if user clicked the next round button, environment will reset
@@ -436,5 +456,6 @@
         	this.userIsDiscarding(event); // checks if user has pushed any card buttons, if yes => discard that card
             this.userIsChangingGame(event); // checks if user has pushed any "game changer" buttons (done with turn, next round), and does something
         }
-    }
+	}
  }
+	    

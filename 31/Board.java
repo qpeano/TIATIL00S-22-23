@@ -1,3 +1,38 @@
+/* Class is used to simulate two a piles of cards, a stock pile and a discard pile.
+ * The formatting of the cards are explained below.
+ *
+ * A card is a string of digits 'sdd' where the first digit, 's', is the suit of the card.
+ *
+ * 0 : clubs
+ * 1 : diamonds
+ * 2 : hearts
+ * 3 : spades
+ *
+ * The last two digits, 'dd' denote the card. Where the cards with numbers are the numbers on the cards.
+ * The other "special" cards have been given other values.
+ *
+ * 1 : ace
+ * 11 : jester
+ * 12 : queen
+ * 13 : king
+ *
+ * This class is used with other classes to simulate a variation of the game "31".
+ * 
+ * CLARIFICATION: 
+ * 
+ * (1) declaring all fields (= variables declared outside methods) 
+ *     as private prevents them to be changed be changed by anything outside of this class. 
+ * (2) this.[variable name] is used to refer to a field of a class.
+ *     You are able to refer to a field with only its name, but I like to use
+ *     this.[variable name].
+ * (3) declaring methods as privates prevents them from being called outside this class
+ * (4) this.[method name] is in the same as doing this.[variable name], I prefer
+ *     to write this.[method name] instead of [method name]. 
+ *
+ * ----
+ * Author: Shamiur Rahman Ramim
+ */
+
 import java.util.Random;
 import javax.swing.ImageIcon;
 import java.util.Arrays;
@@ -26,83 +61,24 @@ public class Board {
     private void getAllCardImages() {
 
         this.cardImages = new ImageIcon[52];
-        this.addClubs(0);
-        this.addDiamonds(13);
-        this.addHearts(26);
-        this.addSpades(39);
+        this.addCardImages();
     }
-
-    // Method adds all cards that are clubs to this.cardImages
-	private void addClubs(int startIndex) {
-
-		this.cardImages[startIndex++] = new ImageIcon("ace_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("2_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("3_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("4_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("5_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("6_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("7_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("8_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("9_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("10_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("jack_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("queen_of_clubs.png");
-		this.cardImages[startIndex++] = new ImageIcon("king_of_clubs.png");
-	}
-
-    // Method adds all diamonds that are clubs to this.cardImages
-	private void addDiamonds(int startIndex) {
-
-		this.cardImages[startIndex++] = new ImageIcon("ace_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("2_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("3_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("4_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("5_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("6_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("7_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("8_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("9_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("10_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("jack_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("queen_of_diamonds.png");
-		this.cardImages[startIndex++] = new ImageIcon("king_of_diamonds.png");
-	}
-
-    // Method adds all cards that are hearts to this.cardImages
-	private void addHearts(int startIndex) {
-
-		this.cardImages[startIndex++] = new ImageIcon("ace_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("2_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("3_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("4_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("5_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("6_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("7_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("8_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("9_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("10_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("jack_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("queen_of_hearts.png");
-		this.cardImages[startIndex++] = new ImageIcon("king_of_hearts.png");
-	}
-
-    // Method adds all cards that are spades to this.cardImages
-	private void addSpades(int startIndex) {
-
-		this.cardImages[startIndex++] = new ImageIcon("ace_of_spades2.png");
-		this.cardImages[startIndex++] = new ImageIcon("2_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("3_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("4_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("5_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("6_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("7_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("8_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("9_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("10_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("jack_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("queen_of_spades.png");
-		this.cardImages[startIndex++] = new ImageIcon("king_of_spades.png");
-	}
+    
+    // Method adds all card images
+    private void addCardImages() {
+    	
+    	String[] suits = {"clubs", "diamonds", "hearts", "spades"};
+    	String[] ranks = {"ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king"};
+    	for (int suitIndex = 0; suitIndex < suits.length; suitIndex++) {
+    		
+    		for (int rankIndex = 0; rankIndex < ranks.length; rankIndex++) {
+    			
+    			String card = ranks[rankIndex] + "_of_" + suits[suitIndex] + ".png";
+    			int index = suitIndex * 13 + rankIndex;
+    			this.cardImages[index] = new ImageIcon(card);
+    		}
+    	}
+    }
 
     // Method creates the string representations of all 52 cards
     private void generateStockPile() {

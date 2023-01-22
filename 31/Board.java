@@ -18,18 +18,6 @@
  *
  * This class is used with other classes to simulate a variation of the game "31".
  * 
- * CLARIFICATION: 
- * 
- * (1) declaring all fields (= variables declared outside methods) 
- *     as private prevents them to be changed be changed by anything outside of this class. 
- * (2) this.[variable name] is used to refer to a field of a class.
- *     You are able to refer to a field with only its name, but I like to use
- *     this.[variable name].
- * (3) declaring methods as privates prevents them from being called outside this class
- * (4) this.[method name] is in the same as doing this.[variable name], I prefer
- *     to write this.[method name] instead of [method name]. 
- *
- * ----
  * Author: Shamiur Rahman Ramim
  */
 
@@ -48,8 +36,8 @@ public class Board {
     /* Methods - Constructor */
 
     public Board() {
-
-        this.getAllCardImages(); // (2)
+	    
+        this.getAllCardImages(); 
         this.generateStockPile();
         this.shufflePile(this.stockPile);
         this.discardPile = new String[0];
@@ -57,7 +45,7 @@ public class Board {
 
     /* Internal */
 
-    // Method fills this.cardImages with icons of all the playing-cards in order (3)
+    // Method fills this.cardImages with icons of all the playing-cards in order
     private void getAllCardImages() {
 
         this.cardImages = new ImageIcon[52];
@@ -158,7 +146,7 @@ public class Board {
     // Method is used to get the icon of a card
     public ImageIcon getIconOf(String card) {
 
-        int indexOfCard = this.getIndexOf(card); // (4)
+        int indexOfCard = this.getIndexOf(card); 
         return this.cardImages[indexOfCard];
     }
 

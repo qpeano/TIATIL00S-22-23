@@ -70,7 +70,13 @@ public class ExerciseLogger {
      */
     private void checkExerciseFormat(String exerciseInfo) throws Exception {
 
+        Pattern format = Pattern.compile("[a-zA-Z]+_\\d+_\\d+_\\d+[\\.\\d+]*(kg|sec|min)${1}");
+        Matcher matchFormat = format.matcher(exerciseInfo);
 
+        if (!matchFormat.matches()) {
+
+            throw new Exception("EXERCISE INPUT IS NOT FORMATTED CORRECTLY");
+        }
     }
 
     /* METHODS - UI */
@@ -94,7 +100,7 @@ public class ExerciseLogger {
      */
     public void addExercises(String exerciseInfo) throws IOException, Exception {
 
-        this.checkExerciseFormat(exerciseInfo); // !!!!!
+        this.checkExerciseFormat(exerciseInfo);
         this.workouts.addTo(this.primDate, info);
     }
 

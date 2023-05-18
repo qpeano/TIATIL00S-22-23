@@ -24,9 +24,6 @@ public class ExerciseLoggerWindow extends JFrame implements ActionListener {
 	// internal
 
 	private ExerciseLogger logger; // logs the exercise info for later use
-    // private LocalDate dateOfToday; // date of the day
-    // private DateTimeFormatter dateFormatter; // formatts the date
-    // private final String correctFormat = "yyyy-MM-dd"; // the format
 
     /* METHODS - constructor */
 
@@ -73,13 +70,11 @@ public class ExerciseLoggerWindow extends JFrame implements ActionListener {
      */
     private void makeComponents() {
 
-        LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter correctFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String date = currentDate.format(correctFormat);
-
-		this.dateInputField = new JTextField(date);
+		this.dateInputField = new JTextField(this.getCurrentDate());
 		this.searchWorkoutButton = new JButton("search");
+		this.searchWorkoutButton.addActionListener(this);
 		this.makeNewWorkoutButton = new JButton("new");
+		this.makeNewWorkoutButton.addActionListener(this);
 
 		String[] starterText = {"exercise (back-squat)", "sets (2)", "reps (8)", "intensity (79kg)"};
 		this.exerciseInfoInputFields = new JTextField[starterText.length];
@@ -92,10 +87,24 @@ public class ExerciseLoggerWindow extends JFrame implements ActionListener {
 
 		this.saveExerciseButton = new JButton("save");
 		this.saveExerciseButton.setVisible(false);
+		this.saveExerciseButton.addActionListener(this);
 
 		this.exercises = new ArrayList<>();
 		this.compareWorkoutsButton = new JButton("compare");
 		this.compareWorkoutsButton.setVisible(false);
+		this.compareWorkoutsButton.addActionListener(this);
+    }
+
+    /**
+     * Method is used to get the date of current day
+     *
+     * @return date the date of today
+     */
+    private String getCurrentDate() {
+
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return currentDate.format(formatter);
     }
 
     /**
@@ -151,11 +160,81 @@ public class ExerciseLoggerWindow extends JFrame implements ActionListener {
 		return panel;
     }
 
+    /**
+     * Method is used to display the workout that user has searched for
+     *
+     * @param date the date
+     */
+    private void displaySearchedWorkout(String date) {
+
+        JLabel errorLabel = new JLabel();
+        JPanel centerPanel = this.generateCenter(new JPanel(new BorderLayout()));
+        JPanel subcenter = new JPanel(new GridLayout(0, 1));
+        
+        for (JTextField textfield : this.exerciseInfoInputFields) {
+
+            textfield.setVisible(true);
+        }
+
+        this.saveExerciseButton.setVisible(true);
+
+        try {
+
+            ArrayList<String> exerciseInfo = this.logger.getWorkout(date);
+            for (String exercise : exerciseInfo) {
+
+                JButton button = new JButton(exercise);
+                button.addActionListener(this);
+                this.exercises.add(button);
+                subcenter.add(button);
+            }
+
+            centerPanel.add(subcenter, BorderLayout.CENTER);
+        }
+        catch (Exception exception) {
+
+            errorLabel.setText(exception.getMessage());
+            subcenter.add(errorLabel);
+            centerPanel.add(subcenter, BorderLayout.CENTER);
+            System.out.println("heloo");
+        }
+
+
+        Container contentArea = this.getContentPane();
+        contentArea.add("Center", centerPanel);
+        this.setContentPane(contentArea);
+    }
+
     /* METHODS - event handler */
 
     @Override
     public void actionPerformed(ActionEvent event) {
 
+        if (event.getSource() == this.searchWorkoutButton) {
 
+			String date = this.dateInputField.getText();
+            this.displaySearchedWorkout(date);
+        }
+        else if (event.getSource() == this.makeNewWorkoutButton) {
+
+
+        }
+        else if (event.getSource() == this.saveExerciseButton) {
+
+
+        }
+        else if (event.getSource() == this.compareWorkoutsButton) {
+
+
+        }
+        else {
+
+            for (JButton exerciseButton : this.exercises) {
+
+                if (event.getSource() == exerciseButton) {
+
+
+                }
+            }
+        }
     }
-}

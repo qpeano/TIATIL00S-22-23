@@ -59,7 +59,7 @@ public class ExerciseLoggerWindow extends JFrame implements ActionListener {
 
             this.logger = new ExerciseLogger(fileName);
         }
-        catch (IOException exceoption) {
+        catch (IOException exception) {
 
             JOptionPane.showMessageDialog(ExerciseLoggerWindow.this,
             "A PROBLEM HAS OCCURED WITH DATACOLLECTION:\n" + exception.getMessage() + "\nPLEASE CHECK FILE OR TRY RESTARTING THE APP",
@@ -74,8 +74,8 @@ public class ExerciseLoggerWindow extends JFrame implements ActionListener {
     private void makeComponents() {
 
         LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String date = currentDate.format(formatter);
+        DateTimeFormatter correctFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String date = currentDate.format(correctFormat);
 
 		this.dateInputField = new JTextField(date);
 		this.searchWorkoutButton = new JButton("search");
@@ -104,6 +104,58 @@ public class ExerciseLoggerWindow extends JFrame implements ActionListener {
      */
     public void addComponentsToView() {
 
-        
+        Container contentArea = this.getContentPane();
+
+        JPanel northPanel = this.generateNorth();
+        JPanel centerPanel = this.generateCenter(new JPanel());
+
+        contentArea.add("North", northPanel);
+        contentArea.add("Center", centerPanel);
+        this.setContentPane(contentArea);
+    }
+
+    /**
+	 * Method makes the part of the screen (view) were the
+	 * user clicks to create or search for a workout
+	 *
+	 * @return the panel with all objects
+     */
+	private JPanel generateNorth() {
+
+        JPanel panel = new JPanel();
+
+		panel.add(this.dateInputField);
+		panel.add(this.searchWorkoutButton);
+		panel.add(this.makeNewWorkoutButton);
+
+		return panel;
+	}
+
+	/*
+	 * Method makes the part of view where the exercises are viewed
+	 *
+     * @param panel a JPanel
+	 * @return the panel with all objects
+	 */
+    private JPanel generateCenter(JPanel panel) {
+
+        JPanel subPanel = new JPanel();
+		for (JTextField field: this.exerciseInfoInputFields) {
+
+			subPanel.add(field);
+		}
+
+		subPanel.add(saveExerciseButton);
+		panel.add(subPanel, BorderLayout.NORTH);
+
+		return panel;
+    }
+
+    /* METHODS - event handler */
+
+    @Override
+    public void actionPerformed(ActionEvent event) {
+
+
     }
 }

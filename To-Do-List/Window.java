@@ -1,4 +1,4 @@
-/*This class is used with FileHandler to simulate a ToDo-list that stores the tasks between executions
+/* This class is used with FileHandler to simulate a ToDo-list that stores the tasks between executions
  *
  * @qpeano [created: 2023-05-19 | last updated: 2023-05-19]
  */

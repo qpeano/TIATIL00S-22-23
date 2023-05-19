@@ -1,3 +1,7 @@
+/*This class is an interface for storing lines (strings) in files
+ *
+ * @qpeano [created: 2023-05-19 | last updated: 2023-05-19]
+ */
 import java.util.ArrayList;
 import java.io.*;
 

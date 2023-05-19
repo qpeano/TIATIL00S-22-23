@@ -5,9 +5,9 @@ public class FileHandler {
 
     /* FIELDS */
 
-    private ArrayList<String> lines; // lines in the file
-    private File file; // the file that stores lines of data (text)
-    private boolean isEmpty; // indicates if files is empty or not
+    private ArrayList<String> lines;
+    private File file;
+    private boolean isEmpty;
 
     /* METHODS - constructor */
 
@@ -17,14 +17,15 @@ public class FileHandler {
      * @param filePath name (path) of file that will store data
      * @exception IOException if something occurrs in file creation, connection or when reading file
      */
-    public FileHandler(filePath) throws IOException {
+    public FileHandler(String filePath) throws IOException {
 
         this.file = new File(filePath); // makes connection to file
         this.file.createNewFile(); // creates file if it does not exist
+        this.lines = new ArrayList<>();
 
         this.isEmpty = !(this.hasContent(this.file)); // to check if file has content, negated to suit use of field
 
-        if (!this.isEmpty()) { // if file is not empty all data is extracted and written to list of units
+        if (!this.isEmpty) { // if file is not empty all data is extracted and written to list of units
 
             this.extract(this.file, this.lines);
         }
@@ -155,7 +156,7 @@ public class FileHandler {
      * Method fetches all lines
      *
      */
-    public getAllLines() {
+    public ArrayList<String> getAllLines() {
 
         return new ArrayList<>(this.lines);
     }

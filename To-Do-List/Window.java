@@ -1,3 +1,7 @@
+/*This class is used with FileHandler to simulate a ToDo-list that stores the tasks between executions
+ *
+ * @qpeano [created: 2023-05-19 | last updated: 2023-05-19]
+ */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

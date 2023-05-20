@@ -1,3 +1,7 @@
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.time.LocalDate;
@@ -26,6 +30,7 @@ public class Window extends JFrame implements ActionListener {
 	// internal
 	private Logger workoutLogger; // logs the exercise info for later use
 	private boolean isDisplayingWorkout; // checker so that an exercise can only be saved when a workout is displayed
+	private int indexOfClickedExerciseButton;
 	
 	/* METHODS - constructor */
 	
@@ -44,6 +49,7 @@ public class Window extends JFrame implements ActionListener {
         
         this.exerciseButtons = new ArrayList<>();
         this.isDisplayingWorkout = false;
+        this.indexOfClickedExerciseButton = -1;
         this.setUpView(filePath);
 	}
 	
@@ -77,9 +83,9 @@ public class Window extends JFrame implements ActionListener {
 	private void makeComponents() {
 		
 		// instantiate the labels, make the text white
-		this.loggerLabel = new JLabel("<html><span style='font-size: 30px' >Workot Logger</span><span style = 'font-size: 8px'> @qpeano</span></html>", SwingConstants.CENTER);
+		this.loggerLabel = new JLabel("<html><span style='font-size: 30px' >Workout Logger</span><span style = 'font-size: 8px'> @qpeano</span></html>", SwingConstants.CENTER);
 		this.loggerLabel.setForeground(Color.WHITE);
-		this.messageLabel = new JLabel("<html><span style='font-size:20px' >input exercise info below and date above to create a workout</span></html>", SwingConstants.CENTER);
+		this.messageLabel = new JLabel("<html><span style='font-size:20px' >input exercise info below, date above and press 'new' to create a workout</span></html>", SwingConstants.CENTER);
 		this.messageLabel.setForeground(Color.WHITE);
         // instantiate the input field
 		
@@ -101,7 +107,7 @@ public class Window extends JFrame implements ActionListener {
 		
 		for (int i = 0; i < starterText.length; i++) {
 
-			this.exerciseInputFields[i] = new JTextField(starterText[i]);
+			this.exerciseInputFields[i] = new JTextField(starterText[i], 10);
 		}
 		
         // instantiate and "decorate" the "save" button
@@ -218,6 +224,12 @@ public class Window extends JFrame implements ActionListener {
         this.setContentPane(contentArea);
 	}
 	
+	private void makeMessage(String message) {
+		
+		String text = "<html><span style='font-size:20px' >" + message + "</span></html>";
+		messageLabel.setText(text);
+	}
+	
     /**
      * Method is used to display the workout that user has searched for
      *
@@ -238,24 +250,30 @@ public class Window extends JFrame implements ActionListener {
 			if (this.workoutLogger.hasWorkoutDate(date)) {
 				
 				ArrayList<String> exercises = this.workoutLogger.getWorkout(date);
-				for (String exercise : exercises) {
+				if (!exercises.isEmpty()) {
+					
+					for (String exercise : exercises) {
 						
-					JButton exerciseButton = this.makeButton(exercise, Color.YELLOW);
-					this.exerciseButtons.add(exerciseButton);
-					this.centerPanel.add(exerciseButton);
+						JButton exerciseButton = this.makeButton(exercise, Color.YELLOW);
+						this.exerciseButtons.add(exerciseButton);
+						this.centerPanel.add(exerciseButton);
+					}
+					
+					this.makeMessage("Workout fetched successfully!");
+				}
+				else {
+					
+					this.makeMessage("Workout fetched successfully, but workout is empty!");
 				}
 			}
 			else {
 					
-				String message = "<html><span style='font-size:20px' >There is no record of a workout on " + date + "</span></html>";
-				messageLabel.setText(message);
-			}
-			
+				this.makeMessage("There is no record of a workout on " + date);
+			}	
 		}
 		catch (Exception exception) {
 				
-				String message = "<html><span style='font-size:20px' >" + exception.getMessage() + "</span></html>";
-				messageLabel.setText(message);
+			this.makeMessage(exception.getMessage());
 		}
 		
 		Container contentArea = this.getContentPane();
@@ -263,6 +281,140 @@ public class Window extends JFrame implements ActionListener {
 		this.isDisplayingWorkout = true;
 	}
 	
+	private void addNewWorkout(String date) {
+		
+		try {
+			
+			if (this.workoutLogger.hasWorkoutDate(date)) {
+				
+				this.makeMessage("There already exists a workout on " + date);
+			} 
+			else {
+				
+				if (!this.isExerciseInputEmpty()) {
+					
+					String formattedExercise = this.formatExercise();
+					
+					this.workoutLogger.addWorkout(date, formattedExercise);
+					this.displaySearchedWorkout(date);	
+					
+					this.makeMessage("Workout created successfully!");
+					this.isDisplayingWorkout = true;
+				}
+			}
+		}
+		catch (Exception exception) {
+			
+			this.makeMessage(exception.getMessage());
+		}
+	}
+
+
+	private boolean isExerciseInputEmpty() {
+		
+		Pattern format = Pattern.compile("\\s*");
+		Matcher formatMatcher;
+		for (JTextField field : this.exerciseInputFields) {
+			
+			formatMatcher = format.matcher(field.getText());
+			if (formatMatcher.matches()) {
+				
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private String formatExercise() {
+		
+		StringBuilder formattedExercise = new StringBuilder();
+		for (int i = 0; i < this.exerciseInputFields.length; i++) {
+			
+			String exerciseInfo = this.exerciseInputFields[i].getText();
+			formattedExercise.append(exerciseInfo);
+			
+			if (i != this.exerciseInputFields.length - 1) {
+				
+				formattedExercise.append("_");
+			}
+		}
+		
+		System.out.println(formattedExercise.toString());
+		return formattedExercise.toString();
+	}
+	
+	private void addExercise() {
+		
+		try {
+			
+			if (!this.isExerciseInputEmpty()) {
+				
+				String formattedExercise = this.formatExercise();
+				this.workoutLogger.addExercise(formattedExercise);
+				
+				this.displaySearchedWorkout(this.workoutLogger.getCurrentDate());
+				this.makeMessage("Added exercise successfully!");
+			}
+			else {
+				
+				this.makeMessage("You cannot add new exercise without filling in every field below");
+			}
+		}
+		catch (Exception exception) {
+			
+			this.makeMessage(exception.getMessage());
+		}
+	}
+
+	private void editExercise(int index) {
+
+		try {
+				
+			if (!this.isExerciseInputEmpty()) {
+					
+				String formattedExercise = this.formatExercise();
+				
+				ArrayList<String> exercises = this.workoutLogger.getCurrentWorkoutRaw();
+				
+				this.workoutLogger.clearCurrentWorkout();
+				
+				for (int i = 0; i < exercises.size(); i++) {
+					
+					if (i == this.indexOfClickedExerciseButton) {
+						
+						this.workoutLogger.addExercise(formattedExercise);
+					}
+					else {
+						
+						this.workoutLogger.addExercise(exercises.get(i));
+					}
+				}
+				
+				this.displaySearchedWorkout(this.workoutLogger.getCurrentDate());
+				this.makeMessage("Edit successful!");
+				this.indexOfClickedExerciseButton = -1;
+			}
+			else {
+				
+				this.makeMessage("You cannot edit without filling in every field below");
+			}
+		}
+		catch (Exception exception) {
+			
+			this.makeMessage(exception.getMessage());
+			exception.printStackTrace();
+		}
+	}
+
+	private void addToInputFields(String formattedString) {
+		
+		String[] inputStrings = formattedString.replace(" | ", " ").split(" ");
+		for (int i = 0; i < inputStrings.length; i++) {
+			
+			this.exerciseInputFields[i].setText(inputStrings[i]);
+		}
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
@@ -293,7 +445,33 @@ public class Window extends JFrame implements ActionListener {
 			
 			if (!formatMatcher.matches()) {
 				
-				// this.addNewWorkout(date);
+				this.addNewWorkout(date);
+			}
+		}
+		else if (event.getSource() == this.saveExerciseButton) {
+			
+			if (this.isDisplayingWorkout) {
+				
+				if (this.indexOfClickedExerciseButton != -1) {
+					
+					this.editExercise(this.indexOfClickedExerciseButton);
+				}
+				else {
+					
+					this.addExercise();
+				}
+			}
+		}
+		else {
+			
+			for (int i = 0; i < this.exerciseButtons.size(); i++) {
+				
+				if (event.getSource() == this.exerciseButtons.get(i)) {
+					
+					this.indexOfClickedExerciseButton = i;
+					this.addToInputFields(this.exerciseButtons.get(i).getText());
+					this.makeMessage("You are in edit mode");
+				}
 			}
 		}
 	}

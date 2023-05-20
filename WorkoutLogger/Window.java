@@ -1,4 +1,5 @@
 
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -397,7 +398,19 @@ public class Window extends JFrame implements ActionListener {
 			}
 			else {
 				
-				this.makeMessage("You cannot edit without filling in every field below");
+				// this.makeMessage("You cannot edit without filling in every field below");
+				ArrayList<String> exercises = this.workoutLogger.getCurrentWorkoutRaw();
+				exercises.remove(this.indexOfClickedExerciseButton);
+				
+				this.workoutLogger.clearCurrentWorkout();
+				for (String exercise : exercises) {
+					
+					this.workoutLogger.addExercise(exercise);
+				}
+				
+				this.displaySearchedWorkout(this.workoutLogger.getCurrentDate());
+				this.makeMessage("Exercise removed successfully!");
+				this.indexOfClickedExerciseButton = -1;
 			}
 		}
 		catch (Exception exception) {
@@ -470,7 +483,7 @@ public class Window extends JFrame implements ActionListener {
 					
 					this.indexOfClickedExerciseButton = i;
 					this.addToInputFields(this.exerciseButtons.get(i).getText());
-					this.makeMessage("You are in edit mode");
+					this.makeMessage("You are in edit mode, leave any of the fields below blank and press save to remove exercise");
 				}
 			}
 		}

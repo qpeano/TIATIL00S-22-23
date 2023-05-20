@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-public class ExerciseLogger {
+public class Logger {
 
     /* FIELDS */
 
@@ -14,7 +14,7 @@ public class ExerciseLogger {
 
     /* METHODS - constructor */
 
-    public ExerciseLogger(String fileName) throws IOException {
+    public Logger(String fileName) throws IOException {
 
         this.workouts = new DataCollection(fileName);
     }
@@ -26,7 +26,7 @@ public class ExerciseLogger {
      *
      * @param date the date
      */
-    private void checkDateFormt(String date) throws Exception {
+    private void checkDateFormat(String date) throws Exception {
 
         Pattern dateFormat = Pattern.compile("\\d\\d\\d\\d-\\d\\d-\\d\\d"); // format of date
         Matcher matchFormat = dateFormat.matcher(date);
@@ -101,7 +101,7 @@ public class ExerciseLogger {
     public void addExercises(String exerciseInfo) throws IOException, Exception {
 
         this.checkExerciseFormat(exerciseInfo);
-        this.workouts.addTo(this.primDate, info);
+        this.workouts.addTo(this.primDate, exerciseInfo);
     }
 
     /**
@@ -113,17 +113,53 @@ public class ExerciseLogger {
     public ArrayList<String> getWorkout(String date) throws Exception {
 
         this.checkDateFormat(date);
-        return this.workouts.get(date);
+        ArrayList<String> formattedExercises = this.getFormattedExercises(this.workouts.get(date));
+        return formattedExercises;
     }
-
+    
+    
     /**
+     * Method is used to return formatted exercises
+     * 
+     * @param exerises the exercises in raw format
+     * @return exercises but formatted
+     */
+    private ArrayList<String> getFormattedExercises(ArrayList<String> exercises) {
+			
+    	ArrayList<String> formattedExercises = new ArrayList<>();
+    	
+    	for (String exercise : exercises) {
+    		
+    		String formattedExercise = exercise.replaceAll("_", " | ");
+    		formattedExercises.add(formattedExercise);
+    	}
+    	
+		return formattedExercises;
+	}
+
+	/**
      * Method is used to clear exercises of a workout
      *
      * @param date the date the workout was logged
+     * @throws IOException if something goes wrong while writing to file
+     * @throws Exception if formatting is incorrect
      */
     public void clearWorkout(String date) throws IOException, Exception {
 
         this.checkDateFormat(date);
-        this.workout.clearDataUnit(date);
+        this.workouts.clearDataUnit(date);
+    }
+    
+    /**
+     * Method is used to check if a workout exists or not
+     * 
+     * @param date
+     * @return true if workout with date exists, otherwise false
+     * @throws Exception if formatting is incorrect
+     */
+    public boolean hasWorkoutDate(String date) throws Exception {
+    	
+    	this.checkDateFormat(date);
+    	return this.workouts.contains(date);
     }
 }

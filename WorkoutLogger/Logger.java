@@ -70,7 +70,7 @@ public class Logger {
      */
     private void checkExerciseFormat(String exerciseInfo) throws Exception {
 
-        Pattern format = Pattern.compile("[a-zA-Z]+_\\d+_\\d+_\\d+[\\.\\d+]*(kg|sec|min)${1}");
+        Pattern format = Pattern.compile("[a-zA-Z\\-]+_\\d+_\\d+_\\d+[\\.\\d+]*(kg|sec|min)${1}");
         Matcher matchFormat = format.matcher(exerciseInfo);
 
         if (!matchFormat.matches()) {
@@ -92,13 +92,28 @@ public class Logger {
         this.workouts.add(date);
         this.primDate = date;
     }
+    
+    /**
+     * Method is used to add a new workout
+     *
+     * @param date the date of today
+     * @param exercise exercise
+     */
+    public void addWorkout(String date, String exercise) throws IOException, Exception {
 
+        this.checkDateFormat(date);
+        this.checkExerciseFormat(exercise);
+        this.workouts.add(date);
+        this.workouts.addTo(date, exercise);
+        this.primDate = date;
+    }
+    
     /**
      * Method is used to add exercises in an existing workout
      *
      * @param exerciseInfo the information about the exercises (name, sets, reps, intensity)
      */
-    public void addExercises(String exerciseInfo) throws IOException, Exception {
+    public void addExercise(String exerciseInfo) throws IOException, Exception {
 
         this.checkExerciseFormat(exerciseInfo);
         this.workouts.addTo(this.primDate, exerciseInfo);
@@ -114,6 +129,20 @@ public class Logger {
 
         this.checkDateFormat(date);
         ArrayList<String> formattedExercises = this.getFormattedExercises(this.workouts.get(date));
+        this.primDate = date;
+        return formattedExercises;
+    }
+    
+    /**
+     * Method is used to get current workout using the date
+     *
+     * @param date the date the workout was logged
+     * @return the exercises from a workout
+     */
+    public ArrayList<String> getCurrentWorkout() throws Exception {
+
+        this.checkDateFormat(this.primDate);
+        ArrayList<String> formattedExercises = this.getFormattedExercises(this.workouts.get(this.primDate));
         return formattedExercises;
     }
     
@@ -150,6 +179,18 @@ public class Logger {
         this.workouts.clearDataUnit(date);
     }
     
+	/**
+     * Method is used to clear exercises of current workout
+     *
+     * @throws IOException if something goes wrong while writing to file
+     * @throws Exception if formatting is incorrect
+     */
+    public void clearCurrentWorkout() throws IOException, Exception {
+
+        this.checkDateFormat(this.primDate);
+        this.workouts.clearDataUnit(this.primDate);
+    }
+    
     /**
      * Method is used to check if a workout exists or not
      * 
@@ -162,4 +203,19 @@ public class Logger {
     	this.checkDateFormat(date);
     	return this.workouts.contains(date);
     }
+    
+    /**
+     * Method is used to get the current date
+     * 
+     * @return the current date
+     */
+    public String getCurrentDate() {
+    	
+    	return this.primDate;
+    }
+
+	public ArrayList<String> getCurrentWorkoutRaw() throws Exception {
+		
+		return new ArrayList<String>(this.workouts.get(this.primDate));
+	}
 }

@@ -206,8 +206,10 @@ public class DataCollection {
 
             return false;
         }
+        
+        return false;
 
-        throw new Exception("DataCollection Is Empty"); // returns a message informing user about the emptiness of collection
+        // throw new Exception("DataCollection Is Empty"); // returns a message informing user about the emptiness of collection
     }
 
     // this method is used to see if a collection (file representng a collection) is empty

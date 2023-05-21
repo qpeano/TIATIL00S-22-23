@@ -454,8 +454,11 @@ public class Window extends JFrame implements ActionListener {
 						this.workoutLogger.addExercise(exercises.get(i));
 					}
 				}
-
-                // let user know it worked
+				
+				// display the edited workout
+	            this.displaySearchedWorkout(this.workoutLogger.getCurrentDate());
+                
+	            // let user know it worked
 				this.makeMessage("Edit successful!");
 			}
 			else { // if any input field is empty
@@ -472,14 +475,14 @@ public class Window extends JFrame implements ActionListener {
 
 					this.workoutLogger.addExercise(exercise);
 				}
-
-                // let user know
+				
+				// display the edited workout
+	            this.displaySearchedWorkout(this.workoutLogger.getCurrentDate());
+                
+	            // let user know
 				this.makeMessage("Exercise removed successfully!");
 			}
 
-
-            // display the edidet workout
-            this.displaySearchedWorkout(this.workoutLogger.getCurrentDate());
             this.indexOfClickedExerciseButton = -1; // user has not clicked on exercise yet
 		}
 		catch (Exception exception) {

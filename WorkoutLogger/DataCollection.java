@@ -5,7 +5,7 @@
  *
  * This is a proof of concept for makeshift databases using files
  *
- * Author @qpeano [created 2022-01-29 | last updated: 2022-02-05]
+ * Author @qpeano [created 2022-01-29 | last updated: 2023-05-20]
  */
 
 import java.io.*;
@@ -208,7 +208,6 @@ public class DataCollection {
         }
         
         return false;
-
         // throw new Exception("DataCollection Is Empty"); // returns a message informing user about the emptiness of collection
     }
 

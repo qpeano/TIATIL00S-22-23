@@ -1,5 +1,4 @@
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -19,7 +18,8 @@ public class Window extends JFrame implements ActionListener {
 	private JTextField dateInputField; // user will input a date here
 	
 	private JButton searchButton; // user will search for workout by pressing this
-	private JButton newWorkoutButton; // user will make new workout with today's date using this
+	private JButton newWorkoutButton; // user will make new workout with date using this
+	private JButton deleteWorkoutButton; // user will delete workout by pressing this
 	private JLabel messageLabel; // displays different things, error messages for example
 	
 	private JTextField[] exerciseInputFields; // user will input name, sets, reps, and intensity of an exercise here
@@ -86,7 +86,7 @@ public class Window extends JFrame implements ActionListener {
 		// instantiate the labels, make the text white
 		this.loggerLabel = new JLabel("<html><span style='font-size: 30px' >Workout Logger</span><span style = 'font-size: 8px'> @qpeano</span></html>", SwingConstants.CENTER);
 		this.loggerLabel.setForeground(Color.WHITE);
-		this.messageLabel = new JLabel("<html><span style='font-size:20px' >input exercise info below, date above and press 'new' to create a workout</span></html>", SwingConstants.CENTER);
+		this.messageLabel = new JLabel("<html><span style='font-size:20px' >input exercise info below, date above and press 'new' to create a workout<br>input date and press 'delete' to remove workout</span></html>", SwingConstants.CENTER);
 		this.messageLabel.setForeground(Color.WHITE);
         // instantiate the input field
 		
@@ -97,10 +97,15 @@ public class Window extends JFrame implements ActionListener {
         // instantiate and "decorate" the search button
         // border and text will change color to red if user hovers mouse above "search" button
 		this.searchButton = this.makeButton("search", Color.BLUE);
-
+		
         // instantiate and "decorate" the "new workout" button
         // border and text will change color to red if user hovers mouse above "new workout" button
-		this.newWorkoutButton = this.makeButton("new", Color.BLUE);
+		this.newWorkoutButton = this.makeButton("new", Color.GREEN);
+		
+		
+        // instantiate and "decorate" the "new workout" button
+        // border and text will change color to red if user hovers mouse above "new workout" button
+		this.deleteWorkoutButton = this.makeButton("delete", Color.RED);
 		
 		// instantiate and fill the exercise input fields
 		String[] starterText = {"exercise (back-squat)", "sets (2)", "reps (8)", "intensity (79kg)"};
@@ -113,7 +118,7 @@ public class Window extends JFrame implements ActionListener {
 		
         // instantiate and "decorate" the "save" button
         // border and text will change color to red if user hovers mouse above "save" button
-		this.saveExerciseButton = this.makeButton("save", Color.BLUE);
+		this.saveExerciseButton = this.makeButton("save", Color.GREEN);
 		
         // instantiate the section of the window that will house the exercises
 		this.centerPanel = new JPanel(new GridLayout(0, 1, 2, 2));
@@ -199,6 +204,7 @@ public class Window extends JFrame implements ActionListener {
         ncNorth.add(this.dateInputField);
         scNorth.add(this.searchButton);
         scNorth.add(this.newWorkoutButton);
+        scNorth.add(this.deleteWorkoutButton);
         
         nsNorth.add(this.messageLabel);
         
@@ -416,7 +422,7 @@ public class Window extends JFrame implements ActionListener {
 		catch (Exception exception) {
 			
 			this.makeMessage(exception.getMessage());
-			exception.printStackTrace();
+			// exception.printStackTrace();
 		}
 	}
 
@@ -426,6 +432,27 @@ public class Window extends JFrame implements ActionListener {
 		for (int i = 0; i < inputStrings.length; i++) {
 			
 			this.exerciseInputFields[i].setText(inputStrings[i]);
+		}
+	}
+	
+	private void deleteWorkout(String date) {
+		
+		try {
+			
+			if (this.workoutLogger.hasWorkoutDate(date)) {
+				
+				this.workoutLogger.removeWorkout(date);
+				this.displaySearchedWorkout(date);
+				this.makeMessage("Workout deleted");
+			}
+			else {
+				
+				this.makeMessage("Workout does not exist");
+			}
+		}
+		catch (Exception exception) {
+			
+			this.makeMessage(exception.getMessage());
 		}
 	}
 
@@ -473,6 +500,20 @@ public class Window extends JFrame implements ActionListener {
 					
 					this.addExercise();
 				}
+			}
+		}
+		else if (event.getSource() == this.deleteWorkoutButton) {
+			
+			String date = this.dateInputField.getText();
+			this.dateInputField.setText("");
+			this.dateInputField.setColumns(10);
+			
+			Pattern format = Pattern.compile("\\s*"); 
+			Matcher formatMatcher = format.matcher(date); 
+			
+			if (!formatMatcher.matches()) {
+				
+				this.deleteWorkout(date);
 			}
 		}
 		else {

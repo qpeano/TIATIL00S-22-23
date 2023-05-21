@@ -218,4 +218,18 @@ public class Logger {
 		
 		return new ArrayList<String>(this.workouts.get(this.primDate));
 	}
+	
+	public void removeWorkout(String date) throws Exception {
+		
+    	this.checkDateFormat(date);
+    	
+    	try {
+    		
+    		this.workouts.remove(date);
+    	}
+    	catch (IOException exception) {
+    		
+    		throw new Exception("Workout on " + date + " does not exist");
+    	}
+	}
 }

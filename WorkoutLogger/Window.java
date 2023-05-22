@@ -520,6 +520,7 @@ public class Window extends JFrame implements ActionListener {
 				this.workoutLogger.removeWorkout(date);
 				this.displaySearchedWorkout(date);
 				this.makeMessage("Workout deleted");
+				this.isDisplayingWorkout = false;
 			}
 			else { // if it doesn't exist, let user know
 
